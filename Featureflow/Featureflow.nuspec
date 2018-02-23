@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--https://docs.microsoft.com/en-us/nuget/quickstart/create-and-publish-a-package-->
+<package >
+  <metadata>
+    <id>Featureflow.Client</id>
+    <version>1.0.0</version>
+    <title>Featureflow SDK Client</title>
+    <authors>Featureflow</authors>
+    <owners>Featureflow</owners>
+    <licenseUrl>https://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>https:/>/www.featureflow.io</projectUrl>
+    <iconUrl>https://www.featureflow.io/wp-content/uploads/2016/12/favicon-96x96.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>The DotNet Client for Featureflow runtime feature management</description>
+    <releaseNotes>Initial Release.</releaseNotes>
+    <copyright>Copyright 2017</copyright>
+    <tags>Features Feature Management Release Dark launch Feature Toggles</tags>
+  </metadata>
+</package>
