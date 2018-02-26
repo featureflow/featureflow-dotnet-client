@@ -2,7 +2,7 @@
 <!--https://docs.microsoft.com/en-us/nuget/quickstart/create-and-publish-a-package-->
 <package >
   <metadata>
-    <id>Featureflow.Client</id>
+    <id>Featureflow</id>
     <version>1.0.0</version>
     <title>Featureflow SDK Client</title>
     <authors>Featureflow</authors>

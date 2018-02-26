@@ -2,7 +2,7 @@ namespace Featureflow.Client
 {
     public class Feature
     {
-        internal string Key { get; private set; }
-        internal string FailoverVariant { get; private set; }
+        public string Key { get; set; }
+        public string FailoverVariant { get; set; }
     }
 }

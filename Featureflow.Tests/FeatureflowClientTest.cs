@@ -20,14 +20,64 @@ namespace Featureflow.Tests
 			/*FeatureflowConfig config = FeatureflowConfig.Create();
 			config.BaseUri = "http://app.featureflow.localdev";*/
 			Console.WriteLine("Starting out");
-			var client = new FeatureflowClient("srv-env-b4b1bdac23ac47558165851a96899019"); //
+			var client = new FeatureflowClient(""); //
 			Console.WriteLine("We are here");
-			User user = new User();
+			var user = new User();
 			user.Attributes.Add("age", new List<object> {11l});
 			
 			var result = client.Evaluate("example-feature", user).Value();
 			Console.WriteLine(result);
 		}
+
+	    [Fact]
+	    public void FeatureflowManualTestWithFeatureDefaults()
+	    {
+		    /*FeatureflowConfig config = FeatureflowConfig.Create();
+		    config.BaseUri = "http://app.featureflow.localdev";*/
+		    Console.WriteLine("Starting out");
+		    var defaultOne = new Feature
+		    {
+			    Key = "new-one",
+			    FailoverVariant = "green"
+		    };
+
+		    var client = new FeatureflowClient("", new List<Feature>
+		    {
+			    new Feature
+			    {
+				    Key = "unknown",
+				    FailoverVariant = "unavailable"
+			    },
+			    new Feature
+			    {
+				    Key = "new-one",
+				    FailoverVariant = "green"
+			    },
+			    new Feature
+			    {
+			 	   Key = "example-feature",
+			    	FailoverVariant = "off"
+		    	}
+		    }, new FeatureflowConfig());
+		    Console.WriteLine("We are here");
+		    var user = new User();
+		    user.WithAttribute("region", "sydney");
+		    user.WithAttribute("days", new List<object> {11l, 1l, 4l, 29l});
+		    user.WithSessionAttribute("dayofweek", 11l);
+		    
+		    var result = client.Evaluate("example-feature", user).Value();
+		    if (client.Evaluate("example-feature", user).IsOn())
+		    {
+			    //do something
+		    }
+		    else
+		    {
+			    //do not do something
+		    }
+		    var result2 = client.Evaluate("unknown", user).Value();
+		    Console.WriteLine(result);
+		    Console.WriteLine(result2);
+	    }
 
 
 	    [Fact]

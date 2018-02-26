@@ -29,6 +29,23 @@ namespace Featureflow.Client
         {
             return new User {Id = "ANONYMOUS"};            
         }
+
+        public void WithAttribute(string key, object value)
+        {
+            Attributes.Add(key, new List<object> {value});
+        }
+        public void WithAttribute(string key, List<object> values)
+        {
+            Attributes.Add(key, values);
+        }
+        public void WithSessionAttribute(string key, object value)
+        {
+            SessionAttributes.Add(key, new List<object> {value});
+        }
+        public void WithSessionAttribute(string key, List<object> values)
+        {
+            SessionAttributes.Add(key, values);
+        }
         
     }
 }

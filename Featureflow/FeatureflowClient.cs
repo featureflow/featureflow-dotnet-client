@@ -13,7 +13,7 @@ namespace Featureflow.Client
 	    private readonly IFeatureControlCache featureControlCache; //local cache
 	    private readonly IFeatureControlClient featureControlClient; //retrieves features	    
 	    private readonly RestClient restClient;
-	    private readonly Dictionary<string, Feature> featureDefaults;
+	    private readonly Dictionary<string, Feature> featureDefaults = new Dictionary<string, Feature>();
 	    
 	    
 	    
