@@ -20,9 +20,9 @@ namespace Featureflow.Tests
 			/*FeatureflowConfig config = FeatureflowConfig.Create();
 			config.BaseUri = "http://app.featureflow.localdev";*/
 			Console.WriteLine("Starting out");
-			var client = new FeatureflowClient(""); //
+			var client = new FeatureflowClient("srv-env-b4b1bdac23ac47558165851a96899019"); //
 			Console.WriteLine("We are here");
-			var user = new User();
+			User user = new User();
 			user.Attributes.Add("age", new List<object> {11l});
 			
 			var result = client.Evaluate("example-feature", user).Value();
@@ -41,7 +41,7 @@ namespace Featureflow.Tests
 			    FailoverVariant = "green"
 		    };
 
-		    var client = new FeatureflowClient("", new List<Feature>
+		    var client = new FeatureflowClient("srv-env-b4b1bdac23ac47558165851a96899019", new List<Feature>
 		    {
 			    new Feature
 			    {

@@ -10,37 +10,37 @@ namespace Featureflow.Client
         
         
         private static readonly ILogger Logger = ApplicationLogging.CreateLogger<SimpleMemoryFeatureCache>();                        
-        private ConcurrentDictionary<string, FeatureControl> controls;              
-        private bool initialized;
+        private ConcurrentDictionary<string, FeatureControl> _controls;              
+        private bool _initialized;
 
         public void Init(IDictionary<string, FeatureControl> controls)
         {
-            this.controls = new ConcurrentDictionary<string, FeatureControl>(controls);
-            initialized = true;
+            this._controls = new ConcurrentDictionary<string, FeatureControl>(controls);
+            _initialized = true;
         }
 
         public FeatureControl Get(string key)
         {
-            controls.TryGetValue(key, out var control);            
+            _controls.TryGetValue(key, out var control);            
             return control;
         }        
 
         public void Set(FeatureControl featureControl)
         {
-            controls.TryAdd(featureControl.Key, featureControl);
+            _controls.TryAdd(featureControl.Key, featureControl);
         }
 
         public void Delete(string key)
         {
-            if (controls.TryGetValue(key, out var control))
+            if (_controls.TryGetValue(key, out var control))
             {
-                controls.TryRemove(key, out control);    
+                _controls.TryRemove(key, out control);    
             }            
         }
 
         public bool Initialised()
         {
-            return initialized;
+            return _initialized;
         }
     }
 }
