@@ -22,7 +22,7 @@ namespace Featureflow.Tests
 			Console.WriteLine("Starting out");
 			var client = new FeatureflowClient("srv-env-b4b1bdac23ac47558165851a96899019"); //
 			Console.WriteLine("We are here");
-			User user = new User();
+			User user = new User("1234");
 			user.Attributes.Add("age", new List<object> {11l});
 			
 			var result = client.Evaluate("example-feature", user).Value();
@@ -35,11 +35,6 @@ namespace Featureflow.Tests
 		    /*FeatureflowConfig config = FeatureflowConfig.Create();
 		    config.BaseUri = "http://app.featureflow.localdev";*/
 		    Console.WriteLine("Starting out");
-		    var defaultOne = new Feature
-		    {
-			    Key = "new-one",
-			    FailoverVariant = "green"
-		    };
 
 		    var client = new FeatureflowClient("srv-env-b4b1bdac23ac47558165851a96899019", new List<Feature>
 		    {
@@ -60,7 +55,7 @@ namespace Featureflow.Tests
 		    	}
 		    }, new FeatureflowConfig());
 		    Console.WriteLine("We are here");
-		    var user = new User();
+		    var user = new User("1234");
 		    user.WithAttribute("region", "sydney");
 		    user.WithAttribute("days", new List<object> {11l, 1l, 4l, 29l});
 		    user.WithSessionAttribute("dayofweek", 11l);
@@ -77,6 +72,9 @@ namespace Featureflow.Tests
 		    var result2 = client.Evaluate("unknown", user).Value();
 		    Console.WriteLine(result);
 		    Console.WriteLine(result2);
+		    
+		    Assert.Equal("off", result);	
+		    Assert.Equal("unavailable", result2);	
 	    }
 
 

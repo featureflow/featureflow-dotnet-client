@@ -1,4 +1,4 @@
-using System;
+
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
@@ -7,10 +7,6 @@ namespace Featureflow.Client
     
     public class User
     {
-        public User()
-        {
-        }
-
         public User(string id)
         {
             Id = id;
@@ -27,7 +23,7 @@ namespace Featureflow.Client
         
         public static User Anonymous()
         {
-            return new User {Id = "ANONYMOUS"};            
+            return new User("ANONYMOUS");            
         }
 
         public void WithAttribute(string key, object value)

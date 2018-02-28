@@ -1,7 +1,7 @@
+using System;
 using System.Collections.Generic;
 using Xunit;
 using Featureflow.Client;
-using Microsoft.DotNet.PlatformAbstractions;
 using Newtonsoft.Json;
 using static Xunit.Assert;
 
@@ -34,7 +34,7 @@ namespace Featureflow.Tests
             control.Rules.Add(DefaultOffRule());
             
             //create a matching user
-            var user = new User {Id = "user1"};
+            var user = new User("user1");
             var attributeValues = new List<object>(new[] {"spain"});
             user.Attributes = new Dictionary<string, List<object>> {{"country", attributeValues}};
             var evaluate = new Evaluate(control, user, "off");
@@ -56,7 +56,7 @@ namespace Featureflow.Tests
                        
             condition.Operator = "lessThan";
             condition.Target = "age";
-            condition.Values.Add(65l);
+            condition.Values.Add(65L);
             
             audience.Conditions.Add(condition);
             rule.Audience = audience;
@@ -64,8 +64,8 @@ namespace Featureflow.Tests
             control.Rules.Add(rule);
             
             //create a matching user
-            var user = new User {Id = "user1"};
-            var attributeValues = new List<object>{64l};
+            var user = new User("user1");
+            var attributeValues = new List<object>{64L};
             user.Attributes = new Dictionary<string, List<object>> {{"age", attributeValues}};
             var evaluate = new Evaluate(control, user, "on");
             Equal(true, evaluate.IsOn());
@@ -95,7 +95,7 @@ namespace Featureflow.Tests
             control.Rules.Add(DefaultOffRule());
             
             //create a matching user
-            var user = new User {Id = "user1"};
+            var user = new User("user1");
             var attributeValues = new List<object>{66};
             user.Attributes = new Dictionary<string, List<object>> {{"age", attributeValues}};
             var evaluate = new Evaluate(control, user, "on");
@@ -125,7 +125,7 @@ namespace Featureflow.Tests
             control.Rules.Add(DefaultOffRule());
             
             //create a matching user
-            var user = new User {Id = "user1"};
+            var user = new User("user1");
             var attributeValues = new List<object>{65l};
             user.Attributes = new Dictionary<string, List<object>> {{"age", attributeValues}};
             var evaluate = new Evaluate(control, user, "on");
@@ -156,7 +156,7 @@ namespace Featureflow.Tests
             
             
             //create a matching user
-            var user = new User {Id = "user1"};
+            var user = new User("user1");
             var attributeValues = new List<object>{65l};
             user.Attributes = new Dictionary<string, List<object>> {{"age", attributeValues}};
             var evaluate = new Evaluate(control, user, "on");
@@ -186,7 +186,7 @@ namespace Featureflow.Tests
             control.Rules.Add(DefaultOffRule());
             
             //create a matching user
-            var user = new User {Id = "user1"};
+            var user = new User("user1");
             var attributeValues = new List<object>{"oliver"};
             user.Attributes = new Dictionary<string, List<object>> {{"name", attributeValues}};
             var evaluate = new Evaluate(control, user, "on");
@@ -216,7 +216,7 @@ namespace Featureflow.Tests
             control.Rules.Add(DefaultOffRule());
             
             //create a matching user
-            var user = new User {Id = "user1"};
+            var user = new User("user1");
             var attributeValues = new List<object>{"oliver"};
             user.Attributes = new Dictionary<string, List<object>> {{"name", attributeValues}};
             var evaluate = new Evaluate(control, user, "on");
@@ -247,7 +247,7 @@ namespace Featureflow.Tests
             control.Rules.Add(DefaultOffRule());
             
             //create a matching user
-            var user = new User {Id = "user1"};
+            var user = new User("user1");
             var attributeValues = new List<object>{"oliver@featureflow.io"};
             user.Attributes = new Dictionary<string, List<object>> {{"name", attributeValues}};
             var evaluate = new Evaluate(control, user, "on");
@@ -276,7 +276,7 @@ namespace Featureflow.Tests
             condition.Values = values;
 
             //create a matching user
-            var user = new User {Id = "user1"};
+            var user = new User("user1");
             var attributeValues = new List<object>(new[] {"spain"});
             user.Attributes = new Dictionary<string, List<object>> {{"country", attributeValues}};
             var evaluate = new Evaluate(control, user, "off");
@@ -308,7 +308,7 @@ namespace Featureflow.Tests
             condition.Values = values;
 
             //create a matching user
-            var user = new User {Id = "user1"};
+            var user = new User("user1");
             var attributeValues = new List<object>(new[] {"netherlands"});
             user.Attributes = new Dictionary<string, List<object>> {{"country", attributeValues}};
             var evaluate = new Evaluate(control, user, "off");
@@ -324,13 +324,73 @@ namespace Featureflow.Tests
         [Fact]
         public void TestBefore()
         {
+            //construct the feature an rule
+            var control = new FeatureControl();
+            var rule = new Rule {VariantSplits = OnSplit()};
+            var audience = new Audience();
+            var condition = new Condition();
+             
             
+            control.Enabled = true;
+            control.OffVariantKey = "off";
+                       
+            condition.Operator = "before";
+            condition.Target = "signupDate";
+            condition.Values.Add(new DateTime(2017, 1, 18));
+            
+            audience.Conditions.Add(condition);
+            rule.Audience = audience;
+            rule.VariantSplits = OnSplit();
+            
+            control.Rules.Add(rule);
+            control.Rules.Add(DefaultOffRule());                       
+            
+            
+            //create a matching user
+            var user = new User("123");
+            user.WithAttribute("signupDate", new DateTime(2017, 1, 17));            
+            
+            var evaluate = new Evaluate(control, user, "on");
+            Equal(true, evaluate.IsOn());
         }
 
         [Fact]
         public void TestAfter()
         {
+            /*var features = JsonConvert.DeserializeObject<IDictionary<string, FeatureControl>>(EvaluateTest.features);
+            var user = new User("user1");
             
+            features.TryGetValue("example-feature", out var feature);
+            var evaluate = new Evaluate(feature, user, "off");
+            Equal("red", evaluate.Value());*/ 
+            //construct the feature an rule
+            var control = new FeatureControl();
+            var rule = new Rule {VariantSplits = OnSplit()};
+            var audience = new Audience();
+            var condition = new Condition();
+             
+            
+            control.Enabled = true;
+            control.OffVariantKey = "off";
+                       
+            condition.Operator = "before";
+            condition.Target = "signupDate";
+            condition.Values.Add(new DateTime(2017, 1, 17));
+            
+            audience.Conditions.Add(condition);
+            rule.Audience = audience;
+            rule.VariantSplits = OnSplit();
+            
+            control.Rules.Add(rule);
+            control.Rules.Add(DefaultOffRule());                       
+            
+            
+            //create a matching user
+            var user = new User("123");
+            user.WithAttribute("signupDate", new DateTime(2017, 1, 18));            
+            
+            var evaluate = new Evaluate(control, user, "on");
+            Equal(true, evaluate.IsOn());
         }
         
         [Fact]
@@ -357,7 +417,7 @@ namespace Featureflow.Tests
             
             
             //create a matching user
-            var user = new User {Id = "user1"};
+            var user = new User("user1");
             var attributeValues = new List<object>{64l};
             user.Attributes = new Dictionary<string, List<object>> {{"age", attributeValues}};
             var evaluate = new Evaluate(control, user, "on");
@@ -375,7 +435,7 @@ namespace Featureflow.Tests
             };
 
             //create a user
-            var user = new User {Id = "user1"};
+            var user = new User("user1");
             var evaluate = new Evaluate(control, user, "off");
 
             Equal(true, evaluate.IsOff());
@@ -386,7 +446,7 @@ namespace Featureflow.Tests
         public void TestDateComparison()
         {
             var features = JsonConvert.DeserializeObject<IDictionary<string, FeatureControl>>(EvaluateTest.features);
-            var user = new User {Id = "user1"};
+            var user = new User("user1");
             
             features.TryGetValue("example-feature", out var feature);
             var evaluate = new Evaluate(feature, user, "off");
@@ -416,10 +476,10 @@ namespace Featureflow.Tests
 
             control.Rules = new List<Rule>(new[] {rule});            
             //create a user
-            var user = new User {Id = "user1"};
+            var user = new User("user1");
             var evaluate1 = new Evaluate(control, user, "off");
             
-            var user2 = new User {Id = "two"};
+            var user2 = new User ("user2");
             var evaluate2 = new Evaluate(control, user2, "off");
             
             Equal(true, evaluate1.IsOff());
