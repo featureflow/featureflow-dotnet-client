@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace Featureflow.Client
 {
-    public class RestClient
+    internal class RestClient
     {
         // private static readonly ILogger Logger = ApplicationLogging.CreateLogger<RestClient>();
         private readonly string _apiKey;
@@ -19,7 +19,7 @@ namespace Featureflow.Client
         private HttpClient _httpClient;
         private EntityTagHeaderValue _etag;
 
-        public RestClient(string apiKey, FeatureflowConfig config, RestConfig restConfig)
+        internal RestClient(string apiKey, FeatureflowConfig config, RestConfig restConfig)
         {
             _apiKey = apiKey;
             _config = config;

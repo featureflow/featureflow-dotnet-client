@@ -6,7 +6,8 @@ namespace Featureflow.Client
     {        
         [JsonProperty("variantKey")]
         public string VariantKey { get; set; }
+
         [JsonProperty("split")]
-        public int Split { get; set; }                
+        public int Split { get; set; }
     }
 }

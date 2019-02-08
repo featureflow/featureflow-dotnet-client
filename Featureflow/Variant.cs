@@ -2,7 +2,7 @@ using System;
 
 namespace Featureflow.Client
 {
-    public class Variant
+    internal class Variant
     {
         public static readonly string Off = "off";
         public static readonly string On = "on";
