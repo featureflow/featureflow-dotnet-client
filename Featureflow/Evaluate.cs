@@ -95,7 +95,7 @@ namespace Featureflow.Client
         {
             var moment = new DateTime();
             user.SessionAttributes["featureflow.user.id"] = new List<object> {user.Id};
-            user.SessionAttributes["featureflow.hourofday"] = new List<object> {moment.Hour};
+            user.SessionAttributes["featureflow.hourofday"] = new List<object> {DateTime.Now.Hour};
             user.SessionAttributes["featureflow.date"]  =  new List<object> { DateTime.Now };            
         }
         
