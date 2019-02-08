@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections.Generic;
 //using Microsoft.Extensions.Logging;
 using System.Reflection;
@@ -31,8 +32,9 @@ namespace Featureflow.Client
 	        //Logger.LogInformation("Initialising Featureflow...");
 		    features?.ForEach(feature => _featureDefaults[feature.Key] = feature);
 		    _featureControlCache = new SimpleMemoryFeatureCache();
+            _config = config;
 
-		    if (config.Offline)
+		    if (_config.Offline)
 		    {
 			    //Logger.LogWarning("Featureflow is in Offline mode. Registered defaults will be used.");			    
 			    return;
@@ -49,11 +51,15 @@ namespace Featureflow.Client
 	        //register feature coded failover values	
 	        
 	        //start the featureControl Client
-	        _featureControlClient = new PollingClient(config, _featureControlCache, _restClient);
-		    		    		    
-	        var initTask = _featureControlClient.Init(); //initialise  
-	        var unused = initTask.Task.Wait(_config.ConnectionTimeout); //wait	        
+	        var featureControlClient = new PollingClient(config, _featureControlCache, _restClient);
+	        var initTask = featureControlClient.InitAsync(); //initialise  
+            var waitResult = initTask.Wait(_config.ConnectionTimeout);
+            if (!waitResult)
+            {
+                throw new TimeoutException("initialization failed");
+            }
 
+            _featureControlClient = featureControlClient;
         }
 	
 	    public Evaluate Evaluate(string featureKey, User user)

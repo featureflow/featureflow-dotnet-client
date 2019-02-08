@@ -1,68 +1,93 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 //using Microsoft.Extensions.Logging;
 
 namespace Featureflow.Client
 {
-    public class PollingClient : IFeatureControlClient
+    internal class PollingClient : IFeatureControlClient
     {
         //private static readonly ILogger Logger = ApplicationLogging.CreateLogger<PollingClient>();
-        private IFeatureControlCache _featureControlCache;
-        private volatile bool _isFeatureControlCacheInitialized; // TODO remove
-        private FeatureflowConfig _config;
-        private int _initialized = 0;
-        private readonly TaskCompletionSource<bool> _initTask;
-        private bool _disposed;
-        private RestClient _restClient;
+        private static readonly TimeSpan PollPeriod = TimeSpan.FromSeconds(30);
+
+        private readonly IFeatureControlCache _featureControlCache;
+        private readonly FeatureflowConfig _config;
+        private readonly RestClient _restClient;
+        private readonly Timer _timer;
+        private readonly ManualResetEventSlim _waiter = new ManualResetEventSlim(true);
 
         internal PollingClient(FeatureflowConfig config, IFeatureControlCache featureControlCache, RestClient restClient)
         {
             _config = config;
-            _featureControlCache = featureControlCache;            
+            _featureControlCache = featureControlCache;
             _restClient = restClient;
-            _initTask = new TaskCompletionSource<bool>();
+            _timer = new Timer(new TimerCallback(OnTimer), null, TimeSpan.FromMilliseconds(-1), TimeSpan.FromMilliseconds(-1));
         }
 
-        public TaskCompletionSource<bool> Init()
+        internal Task InitAsync()
         {
-            
-            //Logger.LogInformation("Starting Featureflow Client");
-            Task.Run(GetFeaturesPollAsync);
-            return _initTask;
-            
-            
+            return Task.Run(LoadFeaturesAsync)
+                .ContinueWith(_ =>
+                {
+                    if (_.IsCompleted && _.Result != null)
+                    {
+                        _featureControlCache.Update(_.Result);
+                        InitializeTimer();
+                    }
+                });
         }
 
-        private async Task GetFeaturesPollAsync()
+        private void InitializeTimer()
         {
-            while (!_disposed)
+            _timer.Change(PollPeriod, TimeSpan.FromMilliseconds(-1));
+        }
+
+        private async void OnTimer(object state)
+        {
+            try
             {
-                await UpdateFeaturesAsync();
-                await Task.Delay(_config.ConnectionTimeout);
+                _waiter.Reset();
+                var newFeatures = await LoadFeaturesAsync();
+                _featureControlCache.Update(newFeatures);
+            }
+            finally
+            {
+                InitializeTimer();
+                _waiter.Set();
             }
         }
-        private async Task UpdateFeaturesAsync()
-        {
 
-            var featureControls = await _restClient.GetAllFeatureControls();
-            if (featureControls != null)
+        private async Task<IDictionary<string, FeatureControl>> LoadFeaturesAsync()
+        {
+            var controls = await _restClient.GetAllFeatureControls().ConfigureAwait(false);
+            return controls;
+        }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
             {
-                _featureControlCache.Update(featureControls);
-                if (!_isFeatureControlCacheInitialized)
+                if (disposing)
                 {
+                    _waiter.Wait();
+                    _timer.Dispose();
+                }
 
-                    //Logger.LogInformation("Initialized Featureflow FeatureControl Client.");
-                    _isFeatureControlCacheInitialized = true;
-                    _initTask.SetResult(true);
-                }   
-            }          
+                disposedValue = true;
+            }
         }
-        
-        void IDisposable.Dispose()
+
+        public void Dispose()
         {
-            //Logger.LogInformation("Stopping FeatureControl Client");
-            _disposed = true;
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // TODO: uncomment the following line if the finalizer is overridden above.
+            // GC.SuppressFinalize(this);
         }
+        #endregion
     }
 }

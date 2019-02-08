@@ -24,7 +24,14 @@ namespace Featureflow.Client
         {
             lock (_guard)
             {
-                _controls = new Dictionary<string, FeatureControl>(controls);
+                if (controls != null)
+                {
+                    _controls = new Dictionary<string, FeatureControl>(controls);
+                }
+                else
+                {
+                    _controls.Clear();
+                }
             }
         }
 
