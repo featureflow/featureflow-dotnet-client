@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>net45;netstandard1.3;netstandard2.0;</TargetFrameworks>
     <AssemblyName>Featureflow</AssemblyName>
-    <RootNamespace>Featureflow</RootNamespace>
+    <RootNamespace>Featureflow.Client</RootNamespace>
     <PackageId>Featureflow</PackageId>
     <PackOnBuild>true</PackOnBuild>
     <Authors>featureflow</Authors>
