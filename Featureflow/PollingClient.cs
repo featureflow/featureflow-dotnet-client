@@ -2,13 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-//using Microsoft.Extensions.Logging;
 
 namespace Featureflow.Client
 {
     internal class PollingClient : IFeatureControlClient
     {
-        //private static readonly ILogger Logger = ApplicationLogging.CreateLogger<PollingClient>();
+        // private static readonly ILogger Logger = ApplicationLogging.CreateLogger<PollingClient>();
         private static readonly TimeSpan PollPeriod = TimeSpan.FromSeconds(30);
 
         private readonly IFeatureControlCache _featureControlCache;
@@ -16,6 +15,7 @@ namespace Featureflow.Client
         private readonly RestClient _restClient;
         private readonly Timer _timer;
         private readonly ManualResetEventSlim _waiter = new ManualResetEventSlim(true);
+        private bool disposedValue = false; // To detect redundant calls
 
         internal PollingClient(FeatureflowConfig config, IFeatureControlCache featureControlCache, RestClient restClient)
         {
@@ -37,6 +37,29 @@ namespace Featureflow.Client
                     }
                 });
         }
+
+        #region IDisposable Support
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    _waiter.Wait();
+                    _timer.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        #endregion
 
         private void InitializeTimer()
         {
@@ -63,31 +86,5 @@ namespace Featureflow.Client
             var controls = await _restClient.GetAllFeatureControls().ConfigureAwait(false);
             return controls;
         }
-
-        #region IDisposable Support
-        private bool disposedValue = false; // To detect redundant calls
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    _waiter.Wait();
-                    _timer.Dispose();
-                }
-
-                disposedValue = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-            Dispose(true);
-            // TODO: uncomment the following line if the finalizer is overridden above.
-            // GC.SuppressFinalize(this);
-        }
-        #endregion
     }
 }

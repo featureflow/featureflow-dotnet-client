@@ -2,8 +2,8 @@ using System;
 
 namespace Featureflow.Client
 {
-    public class RestConfig	
+    public class RestConfig
     {
-        internal string sdkVersion { get; set; }
+        internal string SdkVersion { get; set; }
     }
 }

@@ -4,10 +4,11 @@ namespace Featureflow.Client
 {
     public class Variant
     {
-        public static readonly string off = "off";
-        public static readonly string on = "on";
-        public string key;
-        public string name;
+        public static readonly string Off = "off";
+        public static readonly string On = "on";
+
+        private readonly string key;
+        private readonly string name;
         
         public Variant(string key, string name)
         {

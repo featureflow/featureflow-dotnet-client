@@ -5,10 +5,9 @@ namespace Featureflow.Client
 {
     public class Rule
     {
-
-        
         [JsonProperty("audience")]
         public Audience Audience { get; set; }
+
         [JsonProperty("variantSplits")]
         public List<VariantSplit> VariantSplits { get; set; }
     }

@@ -1,14 +1,13 @@
-using System.Collections.Concurrent;
+using System;
 using System.Collections.Generic;
-//using Microsoft.Extensions.Logging;
 
 namespace Featureflow.Client
 {
-    class SimpleMemoryFeatureCache : IFeatureControlCache
+    internal class SimpleMemoryFeatureCache : IFeatureControlCache
     {
-        //private static readonly ILogger Logger = ApplicationLogging.CreateLogger<SimpleMemoryFeatureCache>();
-        private Dictionary<string, FeatureControl> _controls;
+        // private static readonly ILogger Logger = ApplicationLogging.CreateLogger<SimpleMemoryFeatureCache>();
         private readonly object _guard = new object();
+        private Dictionary<string, FeatureControl> _controls;
 
         internal SimpleMemoryFeatureCache()
             : this(new Dictionary<string, FeatureControl>())

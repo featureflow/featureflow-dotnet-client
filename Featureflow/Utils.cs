@@ -8,7 +8,7 @@ namespace Featureflow.Client
 
         internal static long GetUnixTimestampMillis(DateTime dateTime)
         {
-            return (long) (dateTime - UnixEpoch).TotalMilliseconds;
+            return (long)(dateTime - UnixEpoch).TotalMilliseconds;
         }
 
         internal static string ExceptionMessage(Exception e)
@@ -18,6 +18,7 @@ namespace Featureflow.Client
             {
                 return msg + " with inner exception: " + e.InnerException.Message;
             }
+
             return msg;
         }
     }

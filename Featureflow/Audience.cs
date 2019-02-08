@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 
 namespace Featureflow.Client
@@ -9,9 +8,11 @@ namespace Featureflow.Client
     {
         [JsonProperty("id")]
         public string Id { get; set; }
+
         [JsonProperty("name")]
         public string Name { get; set; }
+
         [JsonProperty("conditions")]
-        public List<Condition> Conditions { get; set; } = new List<Condition>();                 
+        public List<Condition> Conditions { get; set; } = new List<Condition>();
     }
 }

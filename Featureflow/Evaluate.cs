@@ -8,9 +8,9 @@ namespace Featureflow.Client
 {
     public class Evaluate
     {
-        
+        private const string Salt = "1";
+
         private readonly string evaluateResult;
-        private const string salt = "1";
 
         public Evaluate(FeatureControl feature, User user, string failoverVariant)
         {
@@ -19,13 +19,15 @@ namespace Featureflow.Client
 
         public bool IsOn()
         {
-            return Equals(Variant.on);
+            return Is(Variant.On);
         }
+
         public bool IsOff()
         {
-            return Equals(Variant.off);
+            return Is(Variant.Off);
         }
-        public bool Equals(string variant)
+
+        public bool Is(string variant)
         {
             if (evaluateResult == null)
             {
@@ -33,47 +35,56 @@ namespace Featureflow.Client
             }
 
             return evaluateResult.Equals(variant);
-            
-            
         }
+
         public string Value()
         {
             return evaluateResult;
         }
-        
+
         private string CalculateVariant(FeatureControl featureControl, User user)
-        {                   
-            
+        {
             if (!featureControl.Enabled)
             {
                 return featureControl.OffVariantKey;
             }
 
             AddAdditionalAttributes(user);
-            
+
             foreach (var rule in featureControl.Rules)
             {
-                 //if rule matches then return the variant
+                // if rule matches then return the variant
                 var userBucketKey = user.BucketKey ?? user.Id;
-                if (rule.Audience == null || audienceMatches(user, rule.Audience)) //if the audience is null then it is the default rule (always last in the list) - all will match
+
+                // if the audience is null then it is the default rule (always last in the list) - all will match
+                if (rule.Audience == null || AudienceMatches(user, rule.Audience))
                 {
-                    return GetVariant(userBucketKey, featureControl.Key, salt, rule.VariantSplits);
+                    return GetVariant(userBucketKey, featureControl.Key, Salt, rule.VariantSplits);
                 }
-  
-            }            
-            return null; //at least one of hte rules should have matched above as the default rule has no matchers, if not return null to invoke the default rule
+            }
+
+            // at least one of hte rules should have matched above as the default rule has no matchers, if not return null to invoke the default rule
+            return null;
         }
 
-        private bool audienceMatches(User user, Audience audience)
+        private bool AudienceMatches(User user, Audience audience)
         {
-            if(audience.Conditions==null||audience.Conditions.Count==0)return true;
-           
+            if (audience.Conditions == null || audience.Conditions.Count == 0)
+            {
+                return true;
+            }
+
             foreach (var condition in audience.Conditions)
             {
-                if (condition.matches(user)) return true;
+                if (condition.Matches(user))
+                {
+                    return true;
+                }
             }
+
             return false;
         }
+
         private string GetVariant(string userBucketKey, string featureControlKey, string salt, List<VariantSplit> variantSplits)
         {
             var variantBucket = GetBucket(userBucketKey, featureControlKey, salt);
@@ -86,24 +97,24 @@ namespace Featureflow.Client
                     return split.VariantKey;
                 }
             }
+
             return null;
         }
 
-
         private float GetBucket(string userBucketKey, string featureControlKey, string salt)
-        {            
-            var hash = SHA1HashStringForUTF8String(string.Format("{0}:{1}:{2}", salt, featureControlKey, userBucketKey)).Substring(0,15);
+        {
+            var hash = SHA1HashStringForUTF8String(string.Format("{0}:{1}:{2}", salt, featureControlKey, userBucketKey)).Substring(0, 15);
             var longValue = long.Parse(hash, NumberStyles.HexNumber);
-            return longValue % 100 + 1;
+            return (longValue % 100) + 1;
         }
+
         private static void AddAdditionalAttributes(User user)
         {
-            var moment = new DateTime();
-            user.SessionAttributes["featureflow.user.id"] = new List<object> {user.Id};
-            user.SessionAttributes["featureflow.hourofday"] = new List<object> {DateTime.Now.Hour};
-            user.SessionAttributes["featureflow.date"]  =  new List<object> { DateTime.Now };            
+            user.SessionAttributes["featureflow.user.id"] = new List<object> { user.Id };
+            user.SessionAttributes["featureflow.hourofday"] = new List<object> { DateTime.Now.Hour };
+            user.SessionAttributes["featureflow.date"] = new List<object> { DateTime.Now };
         }
-        
+
         private string SHA1HashStringForUTF8String(string str)
         {
             var sha1 = SHA1.Create();
@@ -114,9 +125,8 @@ namespace Featureflow.Client
                 var hex = b.ToString("x2");
                 sb.Append(hex);
             }
+
             return sb.ToString();
         }
-
-        
-    }    
+    }
 }
