@@ -86,7 +86,7 @@ namespace Featureflow.Tests
                        
             condition.Operator = "greaterThan";
             condition.Target = "age";
-            condition.Values.Add(65l);
+            condition.Values.Add(65L);
             
             audience.Conditions.Add(condition);
             rule.Audience = audience;
@@ -116,7 +116,7 @@ namespace Featureflow.Tests
                        
             condition.Operator = "lessThanOrEqual";
             condition.Target = "age";
-            condition.Values.Add(65l);
+            condition.Values.Add(65L);
             
             audience.Conditions.Add(condition);
             rule.Audience = audience;
@@ -126,7 +126,7 @@ namespace Featureflow.Tests
             
             //create a matching user
             var user = new User("user1");
-            var attributeValues = new List<object>{65l};
+            var attributeValues = new List<object>{65L};
             user.Attributes = new Dictionary<string, List<object>> {{"age", attributeValues}};
             var evaluate = new Evaluate(control, user, "on");
             Equal(true, evaluate.IsOn());   
@@ -146,7 +146,7 @@ namespace Featureflow.Tests
                        
             condition.Operator = "greaterThanOrEqual";
             condition.Target = "age";
-            condition.Values.Add(65l);
+            condition.Values.Add(65L);
             
             audience.Conditions.Add(condition);
             rule.Audience = audience;
@@ -157,7 +157,7 @@ namespace Featureflow.Tests
             
             //create a matching user
             var user = new User("user1");
-            var attributeValues = new List<object>{65l};
+            var attributeValues = new List<object>{65L};
             user.Attributes = new Dictionary<string, List<object>> {{"age", attributeValues}};
             var evaluate = new Evaluate(control, user, "on");
             Equal(true, evaluate.IsOn());
@@ -407,7 +407,7 @@ namespace Featureflow.Tests
                        
             condition.Operator = "greaterThanOrEqual";
             condition.Target = "age";
-            condition.Values.Add(65l);
+            condition.Values.Add(65L);
             
             audience.Conditions.Add(condition);
             rule.Audience = audience;
@@ -418,7 +418,7 @@ namespace Featureflow.Tests
             
             //create a matching user
             var user = new User("user1");
-            var attributeValues = new List<object>{64l};
+            var attributeValues = new List<object>{64L};
             user.Attributes = new Dictionary<string, List<object>> {{"age", attributeValues}};
             var evaluate = new Evaluate(control, user, "on");
             Equal(true, evaluate.IsOff());

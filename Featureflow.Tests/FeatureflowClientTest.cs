@@ -23,7 +23,7 @@ namespace Featureflow.Tests
 			var client = new FeatureflowClient("srv-env-b4b1bdac23ac47558165851a96899019"); //
 			Console.WriteLine("We are here");
 			User user = new User("1234");
-			user.Attributes.Add("age", new List<object> {11l});
+			user.Attributes.Add("age", new List<object> {11L});
 			
 			var result = client.Evaluate("example-feature", user).Value();
 			Console.WriteLine(result);
@@ -57,8 +57,8 @@ namespace Featureflow.Tests
 		    Console.WriteLine("We are here");
 		    var user = new User("1234");
 		    user.WithAttribute("region", "sydney");
-		    user.WithAttribute("days", new List<object> {11l, 1l, 4l, 29l});
-		    user.WithSessionAttribute("dayofweek", 11l);
+		    user.WithAttribute("days", new List<object> {11L, 1L, 4L, 29L});
+		    user.WithSessionAttribute("dayofweek", 11L);
 		    
 		    var result = client.Evaluate("example-feature", user).Value();
 		    if (client.Evaluate("example-feature", user).IsOn())
