@@ -44,7 +44,7 @@ namespace Featureflow.Client
 
         internal async Task<IDictionary<string, FeatureControl>> GetAllFeatureControls()
         {
-            var cts = new CancellationTokenSource(30000);
+            var cts = new CancellationTokenSource(_config.ConnectionTimeout);
             try
             {
                 return await GetFeatureControls(cts);
@@ -57,7 +57,7 @@ namespace Featureflow.Client
 
                 //Logger<>.LogDebug("Error getting feature flags: " + Util.ExceptionMessage(e) +" waiting 1 second before retrying.");
                 //Thread.Sleep(TimeSpan.FromSeconds(1));
-                cts = new CancellationTokenSource(30000);
+                cts = new CancellationTokenSource(_config.ConnectionTimeout);
                 try
                 {
                     return await GetFeatureControls(cts);

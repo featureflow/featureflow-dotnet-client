@@ -39,7 +39,7 @@ namespace Featureflow.Client
             while (!_disposed)
             {
                 await UpdateFeaturesAsync();
-                await Task.Delay(30000);
+                await Task.Delay(_config.ConnectionTimeout);
             }
         }
         private async Task UpdateFeaturesAsync()

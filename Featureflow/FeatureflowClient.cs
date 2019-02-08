@@ -52,7 +52,7 @@ namespace Featureflow.Client
 	        _featureControlClient = new PollingClient(config, _featureControlCache, _restClient);
 		    		    		    
 	        var initTask = _featureControlClient.Init(); //initialise  
-	        var unused = initTask.Task.Wait(300000); //wait	        
+	        var unused = initTask.Task.Wait(_config.ConnectionTimeout); //wait	        
 
         }
 	
