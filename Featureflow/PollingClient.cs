@@ -1,13 +1,13 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+//using Microsoft.Extensions.Logging;
 
 namespace Featureflow.Client
 {
     public class PollingClient : IFeatureControlClient
     {
-        private static readonly ILogger Logger = ApplicationLogging.CreateLogger<PollingClient>();
+        //private static readonly ILogger Logger = ApplicationLogging.CreateLogger<PollingClient>();
         private IFeatureControlCache _featureControlCache;
         private FeatureflowConfig _config;
         private int _initialized = 0;
@@ -26,7 +26,7 @@ namespace Featureflow.Client
         public TaskCompletionSource<bool> Init()
         {
             
-            Logger.LogInformation("Starting Featureflow Client");
+            //Logger.LogInformation("Starting Featureflow Client");
             Task.Run(GetFeaturesPollAsync);
             return _initTask;
             
@@ -50,7 +50,7 @@ namespace Featureflow.Client
                 if (!_featureControlCache.Initialised())
                 {
                     _featureControlCache.Init(featureControls);
-                    Logger.LogInformation("Initialized Featureflow FeatureControl Client.");
+                    //Logger.LogInformation("Initialized Featureflow FeatureControl Client.");
                     _initTask.SetResult(true);
                 }   
                 _featureControlCache.Init(featureControls);                
@@ -59,7 +59,7 @@ namespace Featureflow.Client
         
         void IDisposable.Dispose()
         {
-            Logger.LogInformation("Stopping FeatureControl Client");
+            //Logger.LogInformation("Stopping FeatureControl Client");
             _disposed = true;
         }
     }

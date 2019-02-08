@@ -5,14 +5,14 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+//using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace Featureflow.Client
 {
     public class RestClient
     {
-        private static readonly ILogger Logger = ApplicationLogging.CreateLogger<RestClient>();
+        //private static readonly ILogger Logger = ApplicationLogging.CreateLogger<RestClient>();
         private string _apiKey;
         private FeatureflowConfig _config;
         private RestConfig _restConfig;
@@ -56,7 +56,7 @@ namespace Featureflow.Client
                 _httpClient = CreateHttpClient();
 
                 //Logger<>.LogDebug("Error getting feature flags: " + Util.ExceptionMessage(e) +" waiting 1 second before retrying.");
-                Thread.Sleep(TimeSpan.FromSeconds(1));
+                //Thread.Sleep(TimeSpan.FromSeconds(1));
                 cts = new CancellationTokenSource(30000);
                 try
                 {
@@ -110,14 +110,14 @@ namespace Featureflow.Client
             {
                 if (response.StatusCode == HttpStatusCode.NotModified)
                 {
-                    Logger.LogDebug("Get all flags returned 304: not modified");
+                    //Logger.LogDebug("Get all flags returned 304: not modified");
                     return null;
                 }
                 _etag = response.Headers.ETag;
                 response.EnsureSuccessStatusCode();
                 var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 var flags = JsonConvert.DeserializeObject<IDictionary<string, FeatureControl>>(result);
-                Logger.LogDebug("Get all flags returned " + flags.Keys.Count + " feature flags");
+                //Logger.LogDebug("Get all flags returned " + flags.Keys.Count + " feature flags");
                 return flags;
             }            
         }

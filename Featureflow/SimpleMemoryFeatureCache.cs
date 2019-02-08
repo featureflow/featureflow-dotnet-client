@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Microsoft.Extensions.Logging;
+//using Microsoft.Extensions.Logging;
 
 namespace Featureflow.Client
 {
@@ -9,7 +9,7 @@ namespace Featureflow.Client
     {
         
         
-        private static readonly ILogger Logger = ApplicationLogging.CreateLogger<SimpleMemoryFeatureCache>();                        
+        //private static readonly ILogger Logger = ApplicationLogging.CreateLogger<SimpleMemoryFeatureCache>();                        
         private ConcurrentDictionary<string, FeatureControl> _controls;              
         private bool _initialized;
 
