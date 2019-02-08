@@ -26,7 +26,12 @@ namespace Featureflow.Client
             return Equals(Variant.off);
         }
         public bool Equals(string variant)
-        {           
+        {
+            if (evaluateResult == null)
+            {
+                return variant == null;
+            }
+
             return evaluateResult.Equals(variant);
             
             
