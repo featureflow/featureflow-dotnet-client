@@ -1,9 +1,10 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Featureflow", "Featureflow\Featureflow.csproj", "{0B2332A4-936B-43D0-B854-271C0E241692}"
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.329
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Featureflow", "Featureflow\Featureflow.csproj", "{0B2332A4-936B-43D0-B854-271C0E241692}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Featureflow.Tests", "Featureflow.Tests\Featureflow.Tests.csproj", "{74D23F93-F60D-45D1-9C85-AED18F6DEBAA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Featureflow.Tests", "Featureflow.Tests\Featureflow.Tests.csproj", "{74D23F93-F60D-45D1-9C85-AED18F6DEBAA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,5 +20,11 @@ Global
 		{74D23F93-F60D-45D1-9C85-AED18F6DEBAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{74D23F93-F60D-45D1-9C85-AED18F6DEBAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{74D23F93-F60D-45D1-9C85-AED18F6DEBAA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8D0567E4-E168-46E1-A8C6-6357C0C54F7B}
 	EndGlobalSection
 EndGlobal
