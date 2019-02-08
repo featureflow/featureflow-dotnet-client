@@ -9,13 +9,14 @@ namespace Featureflow.Client
     {
         //private static readonly ILogger Logger = ApplicationLogging.CreateLogger<PollingClient>();
         private IFeatureControlCache _featureControlCache;
+        private volatile bool _isFeatureControlCacheInitialized; // TODO remove
         private FeatureflowConfig _config;
         private int _initialized = 0;
         private readonly TaskCompletionSource<bool> _initTask;
         private bool _disposed;
         private RestClient _restClient;
 
-        public PollingClient(FeatureflowConfig config, IFeatureControlCache featureControlCache, RestClient restClient)
+        internal PollingClient(FeatureflowConfig config, IFeatureControlCache featureControlCache, RestClient restClient)
         {
             _config = config;
             _featureControlCache = featureControlCache;            
@@ -46,14 +47,15 @@ namespace Featureflow.Client
 
             var featureControls = await _restClient.GetAllFeatureControls();
             if (featureControls != null)
-            {                
-                if (!_featureControlCache.Initialised())
+            {
+                _featureControlCache.Update(featureControls);
+                if (!_isFeatureControlCacheInitialized)
                 {
-                    _featureControlCache.Init(featureControls);
+
                     //Logger.LogInformation("Initialized Featureflow FeatureControl Client.");
+                    _isFeatureControlCacheInitialized = true;
                     _initTask.SetResult(true);
                 }   
-                _featureControlCache.Init(featureControls);                
             }          
         }
         

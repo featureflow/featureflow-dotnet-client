@@ -4,43 +4,53 @@ using System.Collections.Generic;
 
 namespace Featureflow.Client
 {
-    public class SimpleMemoryFeatureCache : IFeatureControlCache
-    
+    class SimpleMemoryFeatureCache : IFeatureControlCache
     {
-        
-        
-        //private static readonly ILogger Logger = ApplicationLogging.CreateLogger<SimpleMemoryFeatureCache>();                        
-        private ConcurrentDictionary<string, FeatureControl> _controls;              
-        private bool _initialized;
+        //private static readonly ILogger Logger = ApplicationLogging.CreateLogger<SimpleMemoryFeatureCache>();
+        private Dictionary<string, FeatureControl> _controls;
+        private readonly object _guard = new object();
 
-        public void Init(IDictionary<string, FeatureControl> controls)
+        internal SimpleMemoryFeatureCache()
+            : this(new Dictionary<string, FeatureControl>())
         {
-            this._controls = new ConcurrentDictionary<string, FeatureControl>(controls);
-            _initialized = true;
+        }
+
+        internal SimpleMemoryFeatureCache(Dictionary<string, FeatureControl> controls)
+        {
+            _controls = controls;
+        }
+
+        public void Update(IDictionary<string, FeatureControl> controls)
+        {
+            lock (_guard)
+            {
+                _controls = new Dictionary<string, FeatureControl>(controls);
+            }
         }
 
         public FeatureControl Get(string key)
         {
-            _controls.TryGetValue(key, out var control);            
-            return control;
-        }        
+            lock (_guard)
+            {
+                _controls.TryGetValue(key, out var control);
+                return control;
+            }
+        }
 
         public void Set(FeatureControl featureControl)
         {
-            _controls.TryAdd(featureControl.Key, featureControl);
+            lock (_guard)
+            {
+                _controls.Add(featureControl.Key, featureControl);
+            }
         }
 
         public void Delete(string key)
         {
-            if (_controls.TryGetValue(key, out var control))
+            lock (_guard)
             {
-                _controls.TryRemove(key, out control);    
-            }            
-        }
-
-        public bool Initialised()
-        {
-            return _initialized;
+                _controls.Remove(key);
+            }
         }
     }
 }
