@@ -27,6 +27,29 @@ Install-Package Featureflow
 Get your 'Server Environment Api Key' from the environment page in featureflow and instantiate a singleton client:
 
 ```c#
+FeatureflowClient client = new FeatureflowClient...
+
+```
+A features failover value is 'off' by defauly you define features in code and specify a failover value.
+```
+var client = new FeatureflowClient("srv-env-YOUR_KEY", new List<Feature>
+		    {
+			    new Feature
+			    {
+				    Key = "feature-one",
+				    FailoverVariant = "unavailable"
+			    },
+			    new Feature
+			    {
+				    Key = "new-one",
+				    FailoverVariant = "green"
+			    },
+			    new Feature
+			    {
+			 	   Key = "example-feature",
+			    	FailoverVariant = "pink"
+		    	}
+		    }, new FeatureflowConfig());
 
 ```
 
