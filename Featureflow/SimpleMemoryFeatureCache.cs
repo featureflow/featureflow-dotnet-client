@@ -6,7 +6,6 @@ namespace Featureflow.Client
 {
     internal class SimpleMemoryFeatureCache : IFeatureControlCache
     {
-        // private static readonly ILogger Logger = ApplicationLogging.CreateLogger<SimpleMemoryFeatureCache>();
         private readonly object _guard = new object();
         private Dictionary<string, FeatureControl> _controls;
 

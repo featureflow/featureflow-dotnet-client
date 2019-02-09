@@ -7,7 +7,6 @@ namespace Featureflow.Client
 {
     internal class PollingClient : IFeatureControlClient
     {
-        // private static readonly ILogger Logger = ApplicationLogging.CreateLogger<PollingClient>();
         private static readonly TimeSpan PollPeriod = TimeSpan.FromSeconds(30);
 
         private readonly IFeatureControlCache _featureControlCache;

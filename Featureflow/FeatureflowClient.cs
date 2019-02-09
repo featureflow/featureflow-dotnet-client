@@ -7,7 +7,6 @@ namespace Featureflow.Client
 {
     public class FeatureflowClient : IFeatureflowClient
     {
-        // private static readonly ILogger Logger = ApplicationLogging.CreateLogger<FeatureflowClient>();
         private readonly FeatureflowConfig _config;
         private readonly IFeatureControlCache _featureControlCache; // local cache
         private readonly IFeatureControlClient _featureControlClient; // retrieves features
@@ -26,14 +25,12 @@ namespace Featureflow.Client
 
         public FeatureflowClient(string apiKey, List<Feature> features, FeatureflowConfig config)
         {
-            // Logger.LogInformation("Initialising Featureflow...");
             features?.ForEach(feature => _featureDefaults[feature.Key] = feature);
             _featureControlCache = new SimpleMemoryFeatureCache();
             _config = config;
 
             if (_config.Offline)
             {
-                // Logger.LogWarning("Featureflow is in Offline mode. Registered defaults will be used.");
                 return;
             }
 

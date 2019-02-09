@@ -11,7 +11,6 @@ namespace Featureflow.Client
 {
     internal class RestClient
     {
-        // private static readonly ILogger Logger = ApplicationLogging.CreateLogger<RestClient>();
         private readonly string _apiKey;
         private readonly HttpClientHandler httpClientHandler = new HttpClientHandler();
         private readonly FeatureflowConfig _config;
@@ -50,7 +49,6 @@ namespace Featureflow.Client
                 _httpClient?.Dispose();
                 _httpClient = CreateHttpClient();
 
-                // Logger<>.LogDebug("Error getting feature flags: " + Util.ExceptionMessage(e) +" waiting 1 second before retrying.");
                 // Thread.Sleep(TimeSpan.FromSeconds(1));
                 cts = new CancellationTokenSource(_config.ConnectionTimeout);
                 try
@@ -79,7 +77,6 @@ namespace Featureflow.Client
 
         private async Task<IDictionary<string, FeatureControl>> GetFeatureControls(CancellationTokenSource cts)
         {
-            // Logger.LogDebug("Getting all flags with uri: " + _uri.AbsoluteUri);
             var requestUri = new Uri(_config.BaseUri, "api/sdk/v1/features");
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
             if (_etag != null)
@@ -91,7 +88,6 @@ namespace Featureflow.Client
             {
                 if (response.StatusCode == HttpStatusCode.NotModified)
                 {
-                    // Logger.LogDebug("Get all flags returned 304: not modified");
                     return null;
                 }
 
@@ -99,7 +95,6 @@ namespace Featureflow.Client
                 response.EnsureSuccessStatusCode();
                 var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 var flags = JsonConvert.DeserializeObject<IDictionary<string, FeatureControl>>(result);
-                //// Logger.LogDebug("Get all flags returned " + flags.Keys.Count + " feature flags");
                 return flags;
             }
         }
