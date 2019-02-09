@@ -25,12 +25,35 @@ Install-Package Featureflow
 ### Quick start
 
 Get your 'Server Environment Api Key' from the environment page in featureflow and instantiate a singleton client:
-
+#### Instantiate the client
 ```c#
 var client = new FeatureflowClient("srv-env-b4b1bdac23ac47558165851a96899019"); //
 
 ```
-A features failover value is 'off' by defauly you define features in code and specify a failover value.
+#### Evaluate a feature
+In your code, you can test the value of your feature where the value of `my-feature-key` is equal to `'on'` 
+```c#
+  var result = client.Evaluate("example-feature", user).Is("on");
+
+```
+
+Because the most commonly used variants for any feature are `'on'` and `'off'`, we have provided two helper methods `.IsOn()` and `.IsOff()`
+
+```c#
+
+    if (client.Evaluate("example-feature").IsOn())
+    {
+	    //do something
+    }
+    if (client.Evaluate("example-feature").IsOff())
+    {
+	    //do something
+    }    
+```
+### Setting feature failover values
+
+The feature failover value is used if the feature is not found in the fatures cache for any reason.
+The default value is 'off'. You may define your features in code and specify a failover value.
 ```
 var client = new FeatureflowClient("srv-env-YOUR_KEY", new List<Feature>
 		    {
@@ -48,25 +71,6 @@ var client = new FeatureflowClient("srv-env-YOUR_KEY", new List<Feature>
 
 ```
 
-In your code, you can test the value of your feature where the value of `my-feature-key` is equal to `'on'` 
-```c#
-  var result = client.Evaluate("example-feature", user).Is("on");
-
-```
-
-Because the default variants for any feature are `'on'` and `'off'`, we have provided two helper methods `.IsOn()` and `.IsOff()`
-
-```c#
-
-    if (client.Evaluate("example-feature").IsOn())
-    {
-	    //do something
-    }
-    if (client.Evaluate("example-feature").IsOff())
-    {
-	    //do something
-    }    
-```
 
 ### Adding a User
 You can pass user information in to allow features to be targeted.
