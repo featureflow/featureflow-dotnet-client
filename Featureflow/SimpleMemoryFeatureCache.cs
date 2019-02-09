@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Featureflow.Client
 {
@@ -40,6 +41,14 @@ namespace Featureflow.Client
             {
                 _controls.TryGetValue(key, out var control);
                 return control;
+            }
+        }
+
+        public Dictionary<string, FeatureControl> GetAll()
+        {
+            lock (_guard)
+            {
+                return new Dictionary<string, FeatureControl>(_controls);
             }
         }
 

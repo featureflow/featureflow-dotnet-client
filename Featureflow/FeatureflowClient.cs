@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Featureflow.Client
@@ -58,20 +59,37 @@ namespace Featureflow.Client
 
         public Evaluate Evaluate(string featureKey, User user)
         {
-            var featureControl = _featureControlCache.Get(featureKey);
-            var failoverVariant = "off";
-            if (_featureDefaults.TryGetValue(featureKey, out var failoverFeature))
-            {
-                failoverVariant = failoverFeature.FailoverVariant;
-            }
-
-            var e = new Evaluate(featureControl, user, failoverVariant);
-            return e;
+            return EvaluateInternal(_featureControlCache.Get(featureKey), user);
         }
 
         public Evaluate Evaluate(string featureKey)
         {
             return Evaluate(featureKey, User.Anonymous());
+        }
+
+        public Dictionary<string, Evaluate> EvaluateAll(User user)
+        {
+            return _featureControlCache
+                .GetAll()
+                .ToDictionary(_ => _.Key, _ => EvaluateInternal(_.Value, user));
+        }
+
+        public Dictionary<string, Evaluate> EvaluateAll()
+        {
+            return EvaluateAll(User.Anonymous());
+        }
+
+        private Evaluate EvaluateInternal(FeatureControl featureControl, User user)
+        {
+            var failoverVariant = "off";
+
+            if (featureControl != null &&
+                _featureDefaults.TryGetValue(featureControl.Key, out var failoverFeature))
+            {
+                failoverVariant = failoverFeature.FailoverVariant;
+            }
+
+            return new Evaluate(featureControl, user, failoverVariant);
         }
     }
 }

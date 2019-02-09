@@ -8,6 +8,8 @@ namespace Featureflow.Client
 
         FeatureControl Get(string key);
 
+        Dictionary<string, FeatureControl> GetAll();
+
         void Set(FeatureControl control);
 
         void Delete(string key);
