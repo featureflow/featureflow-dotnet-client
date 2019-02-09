@@ -10,6 +10,7 @@ namespace Featureflow.Client
 
         internal static readonly string FeaturesRestPath = "/api/sdk/v1/features";
         internal static readonly string EventsRestPath = "/api/sdk/v1/events";
+        internal static readonly string StreamFeaturesRestPath = "/api/sdk/v1/features";
 
         public Uri BaseUri { get; internal set; } = DefaultStreamBaseUri;
 
