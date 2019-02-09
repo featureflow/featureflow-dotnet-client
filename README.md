@@ -58,11 +58,11 @@ Because the default variants for any feature are `'on'` and `'off'`, we have pro
 
 ```c#
 
-    if (client.Evaluate("example-feature", user).IsOn())
+    if (client.Evaluate("example-feature").IsOn())
     {
 	    //do something
     }
-    if (client.Evaluate("example-feature", user).IsOff())
+    if (client.Evaluate("example-feature").IsOff())
     {
 	    //do something
     }    
@@ -73,14 +73,11 @@ You can pass user information in to allow features to be targeted.
 At the point in time of evaluation (e.g. on a rest call or other call) you can create and pass in a user by creating a `FeatureflowUser` object. We have a builder to help:
 
 ```c#
-FeatureflowUser user = new FeatureflowUser("uniqueuserId")
-    .withAttribute("tier", "silver")
-    .withAttribute("age", 32)
-    .withAttribute("signup_date", new DateTime(2017, 1, 1, 12, 0, 0, 0))    
-    .withAttribute("name", "Joe User")
-    .withAttribute("email", "user@featureflow.io")
-    .withAttributes("user_role", Arrays.asList("pvt_tester", "administrator"))
-    .build();
+var user = new User("1234");
+user.WithAttribute("region", "sydney");
+user.WithAttribute("days", new List<object> {11L, 1L, 4L, 29L});
+user.WithSessionAttribute("dayofweek", 11L);
+var result = client.Evaluate("example-feature", user).Value();
 ```
 User attributes can be of type `DateTime`, `Number`, `String` or `List<DateTime>`, `List<Number>`, `List<String>`
 
@@ -91,7 +88,8 @@ If you do not want the user saved in featureflow set '.saveUser(false)' on the F
 Evaluate by passing the user into the evaluate method:
 
 ```
-featureflow.Evaluate("example-feature", user).value());
+var result = client.Evaluate("example-feature", user).Value();
+
 ```
 
 
