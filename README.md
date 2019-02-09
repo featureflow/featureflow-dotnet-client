@@ -1,7 +1,7 @@
 # featureflow-dotnet-client
 [![][dependency-img]][dependency-url]
 
-.net client SDK for Featureflow compatible with Framework 4.5, .Net Standard 1.3 - 2.0.
+.NET client SDK for Featureflow compatible with .NET Framework 4.5, .NET Standard 1.3, .NET Standard 2.0.
 
 Get your Featureflow account at [featureflow.io](http://www.featureflow.io)
 
@@ -27,7 +27,7 @@ Install-Package Featureflow
 Get your 'Server Environment Api Key' from the environment page in featureflow and instantiate a singleton client:
 #### Instantiate the client
 ```c#
-var client = new FeatureflowClient("srv-env-b4b1bdac23ac47558165851a96899019"); //
+  var client = new FeatureflowClient("srv-env-b4b1bdac23ac47558165851a96899019");
 
 ```
 #### Evaluate a feature
@@ -52,7 +52,7 @@ Because the most commonly used variants for any feature are `'on'` and `'off'`, 
 ```
 ### Setting feature failover values
 
-The feature failover value is used if the feature is not found in the fatures cache for any reason.
+The feature failover value is used if the feature is not found in the features cache for any reason.
 The default value is 'off'. You may define your features in code and specify a failover value.
 ```
 var client = new FeatureflowClient("srv-env-YOUR_KEY", new List<Feature>
@@ -79,15 +79,15 @@ At the point in time of evaluation (e.g. on a rest call or other call) you can c
 ```c#
 var user = new User("1234");
 user.WithAttribute("region", "sydney");
-user.WithAttribute("days", new List<object> {11L, 1L, 4L, 29L});
-user.WithSessionAttribute("dayofweek", 11L);
+user.WithAttribute("days", new List<int> { 11, 1, 4, 29 });
+user.WithSessionAttribute("dayofweek", 5);
 var result = client.Evaluate("example-feature", user).Value();
 ```
-User attributes can be of type `DateTime`, `Number`, `String` or `List<DateTime>`, `List<Number>`, `List<String>`
+User attributes can be of type `DateTime`, `String`, any numeric type (like `int` or `double`) or `IEnumerable<DateTime>`, `IEnumerable<String>` or `IEnumerable` of any numeric type
 
 When a list of user attributes is passed in, each rule may match any of the attribute values, additionally each attribute is stored in featureflow for subsequent lookup in rule creation.
 
-If you do not want the user saved in featureflow set '.saveUser(false)' on the FeatureflowUser object.
+If you do not want the user saved in featureflow set '.SaveUser(false)' on the FeatureflowUser object.
  
 Evaluate by passing the user into the evaluate method:
 
@@ -116,16 +116,16 @@ Further documentation can be found [here](http://docs.featureflow.io/docs)
     * [ReactJS] (https://github.com/featureflow/react-featureflow-client)
     * [angular] (https://github.com/featureflow/featureflow-ng)
     * [PHP] (https://github.com/featureflow/featureflow-php-sdk)
-    * [.net] (https://github.com/featureflow/featureflow-dotnet-client)
+    * [.NET] (https://github.com/featureflow/featureflow-dotnet-client)
 * Find out more
     * [Docs] http://docs.featureflow.io/docs
     * [Web] https://www.featureflow.io/     
 
 
 ## Roadmap
-- [x] Improved .net standard compatibility
+- [x] Improved .NET standard compatibility
 - [x] Polling feature stream client
-- [ ] Improve README
+- [x] Improve README
 - [ ] SSE feature stream client
 - [ ] Post Events Client
 - [ ] Register features on Startup
