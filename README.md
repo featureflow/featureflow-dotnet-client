@@ -125,6 +125,7 @@ Further documentation can be found [here](http://docs.featureflow.io/docs)
 ## Roadmap
 - [x] Improved .net standard compatibility
 - [x] Polling feature stream client
+- [ ] Improve README
 - [ ] SSE feature stream client
 - [ ] Post Events Client
 - [ ] Register features on Startup
