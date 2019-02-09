@@ -15,7 +15,7 @@ namespace Featureflow.Client
         public string Target { get; set; }
 
         /// <summary>
-        /// = < > like in out
+        /// operator value
         /// </summary>
         [JsonProperty("operator")]
         public string Operator { get; set; }
