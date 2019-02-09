@@ -13,13 +13,13 @@ namespace Featureflow.Client
         [JsonProperty("id")]
         public string Id { get; set; }
 
-        [JsonProperty("attributes")]
+        [JsonProperty("attributes", NullValueHandling = NullValueHandling.Ignore)]
         public Dictionary<string, List<object>> Attributes { get; set; } = new Dictionary<string, List<object>>();
 
-        [JsonProperty("sessionAttributes")]
+        [JsonProperty("sessionAttributes", NullValueHandling = NullValueHandling.Ignore)]
         public Dictionary<string, List<object>> SessionAttributes { get; set; } = new Dictionary<string, List<object>>();
 
-        [JsonProperty("bucketKey")]
+        [JsonProperty("bucketKey", NullValueHandling = NullValueHandling.Ignore)]
         public string BucketKey { get; set; }
         
         public static User Anonymous()

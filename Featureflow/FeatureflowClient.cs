@@ -10,6 +10,7 @@ namespace Featureflow.Client
         private readonly FeatureflowConfig _config;
         private readonly IFeatureControlCache _featureControlCache; // local cache
         private readonly IFeatureControlClient _featureControlClient; // retrieves features
+        private readonly FeatureflowEventsClient _eventsClient;
         private readonly RestClient _restClient;
         private readonly Dictionary<string, Feature> _featureDefaults = new Dictionary<string, Feature>();
 
@@ -52,6 +53,7 @@ namespace Featureflow.Client
             }
 
             _featureControlClient = featureControlClient;
+            _eventsClient = new FeatureflowEventsClient(_restClient, config);
         }
 
         public Evaluate Evaluate(string featureKey, User user)
@@ -86,7 +88,7 @@ namespace Featureflow.Client
                 failoverVariant = failoverFeature.FailoverVariant;
             }
 
-            return new Evaluate(featureControl, user, failoverVariant);
+            return new Evaluate(featureControl, user, failoverVariant, _eventsClient);
         }
     }
 }

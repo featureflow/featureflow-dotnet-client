@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -75,9 +76,30 @@ namespace Featureflow.Client
             }
         }
 
+        internal async Task<bool> SendEventsAsync(IEnumerable<Event> events, CancellationToken cancellationToken)
+        {
+            var uri = new Uri(_config.BaseUri, FeatureflowConfig.EventsRestPath);
+            var content = new StringContent(JsonConvert.SerializeObject(events), Encoding.UTF8, "application/json");
+
+            var timeoutCts = new CancellationTokenSource(_config.ConnectionTimeout);
+            var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+
+            using (var client = CreateHttpClient())
+            {
+                client.DefaultRequestHeaders.Add("Accept", "*/*");
+                client.DefaultRequestHeaders.Add("Accept-Enconding", "gzip,deflate");
+                client.DefaultRequestHeaders.Add("Accept-Language", "en-US,en;q=0.8");
+
+                using (var response = await client.PostAsync(uri, content, linkedCts.Token))
+                {
+                    return response.IsSuccessStatusCode;
+                }
+            }
+        }
+
         private async Task<IDictionary<string, FeatureControl>> GetFeatureControls(CancellationTokenSource cts)
         {
-            var requestUri = new Uri(_config.BaseUri, "api/sdk/v1/features");
+            var requestUri = new Uri(_config.BaseUri, FeatureflowConfig.FeaturesRestPath);
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
             if (_etag != null)
             {

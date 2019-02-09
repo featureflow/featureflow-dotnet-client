@@ -8,6 +8,9 @@ namespace Featureflow.Client
         internal static readonly Uri DefaultBaseUri = new Uri("https://app.featureflow.io");
         internal static readonly Uri DefaultStreamBaseUri = new Uri("https://rtm.featureflow.io");
 
+        internal static readonly string FeaturesRestPath = "/api/sdk/v1/features";
+        internal static readonly string EventsRestPath = "/api/sdk/v1/events";
+
         public Uri BaseUri { get; internal set; } = DefaultStreamBaseUri;
 
         public Uri StreamBaseUri { get; internal set; } = DefaultStreamBaseUri;
