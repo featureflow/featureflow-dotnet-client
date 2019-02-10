@@ -20,7 +20,7 @@ namespace Featureflow.Tests
 			/*FeatureflowConfig config = FeatureflowConfig.Create();
 			config.BaseUri = "http://app.featureflow.localdev";*/
 			Console.WriteLine("Starting out");
-			var client = new FeatureflowClient("srv-env-YOUR_KEY_HERE"); //
+			var client = new FeatureflowClient("srv-env-685e066dea464f88be14effbf65cf69c"); //
 			Console.WriteLine("Created client");
 			User user = new User("1234");
 			user.Attributes.Add("age", new List<object> {11L});
@@ -36,7 +36,7 @@ namespace Featureflow.Tests
 		    config.BaseUri = "http://app.featureflow.localdev";*/
 		    Console.WriteLine("Creating client");
 
-		    var client = new FeatureflowClient("srv-env-YOUR_KEY_HERE", new List<Feature>
+		    var client = new FeatureflowClient("srv-env-685e066dea464f88be14effbf65cf69c", new List<Feature>
 		    {
 			    new Feature
 			    {

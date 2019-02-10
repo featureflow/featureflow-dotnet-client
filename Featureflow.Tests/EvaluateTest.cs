@@ -373,7 +373,7 @@ namespace Featureflow.Tests
             control.Enabled = true;
             control.OffVariantKey = "off";
                        
-            condition.Operator = "before";
+            condition.Operator = "after";
             condition.Target = "signupDate";
             condition.Values.Add(new DateTime(2017, 1, 17));
             
@@ -462,11 +462,11 @@ namespace Featureflow.Tests
             var off = new VariantSplit
             {
                 VariantKey = "off",
-                Split = 50
+                Split = 49
             };
             var on = new VariantSplit();
             on.VariantKey = "on";
-            on.Split = 50;
+            on.Split = 51;
             
             rule.VariantSplits = new List<VariantSplit>{on, off};
 
