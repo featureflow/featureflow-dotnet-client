@@ -63,14 +63,16 @@ namespace Featureflow.Tests
 		    if (client.Evaluate("example-feature", user).IsOn())
 		    {
 			    //do something
+			    Console.WriteLine("Example feature is on");
 		    }
 		    else
 		    {
 			    //do not do something
+			    Console.WriteLine("Example feature is off");
 		    }
 		    var result2 = client.Evaluate("unknown", user).Value();
-		    Console.WriteLine(result);
-		    Console.WriteLine(result2);
+		    Console.WriteLine("example feature: " + result);
+		    Console.WriteLine("unknown feature: " + result2);
 		    
 		    Assert.Equal("off", result);	
 		    Assert.Equal("unavailable", result2);	
