@@ -20,8 +20,8 @@ namespace Featureflow.Tests
 			/*FeatureflowConfig config = FeatureflowConfig.Create();
 			config.BaseUri = "http://app.featureflow.localdev";*/
 			Console.WriteLine("Starting out");
-			var client = new FeatureflowClient("srv-env-b4b1bdac23ac47558165851a96899019"); //
-			Console.WriteLine("We are here");
+			var client = new FeatureflowClient("srv-env-YOUR_KEY_HERE"); //
+			Console.WriteLine("Created client");
 			User user = new User("1234");
 			user.Attributes.Add("age", new List<object> {11L});
 			
@@ -34,9 +34,9 @@ namespace Featureflow.Tests
 	    {
 		    /*FeatureflowConfig config = FeatureflowConfig.Create();
 		    config.BaseUri = "http://app.featureflow.localdev";*/
-		    Console.WriteLine("Starting out");
+		    Console.WriteLine("Creating client");
 
-		    var client = new FeatureflowClient("srv-env-b4b1bdac23ac47558165851a96899019", new List<Feature>
+		    var client = new FeatureflowClient("srv-env-YOUR_KEY_HERE", new List<Feature>
 		    {
 			    new Feature
 			    {
@@ -53,8 +53,7 @@ namespace Featureflow.Tests
 			 	   Key = "example-feature",
 			    	FailoverVariant = "off"
 		    	}
-		    }, new FeatureflowConfig());
-		    Console.WriteLine("We are here");
+		    }, new FeatureflowConfig());		    
 		    var user = new User("1234");
 		    user.WithAttribute("region", "sydney");
 		    user.WithAttribute("days", new List<object> {11L, 1L, 4L, 29L});
