@@ -55,7 +55,7 @@ namespace Featureflow.Client
         {
             lock (_guard)
             {
-                _controls.Add(featureControl.Key, featureControl);
+                _controls[featureControl.Key] = featureControl;
             }
         }
 
