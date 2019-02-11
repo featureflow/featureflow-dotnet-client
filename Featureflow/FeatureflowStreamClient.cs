@@ -56,7 +56,7 @@ namespace Featureflow.Client
                             _controlCache.Update(entries);
                             foreach (var entry in entries)
                             {
-                                FeatureUpdated?.Invoke(this, new FeatureUpdatedEventArgs(entry.Value.Key));
+                                FeatureUpdated?.Invoke(this, new FeatureUpdatedEventArgs(entry.Key));
                             }
                         }
                         else
@@ -64,7 +64,7 @@ namespace Featureflow.Client
                             foreach (var entry in entries)
                             {
                                 _controlCache.Set(entry.Value);
-                                FeatureUpdated?.Invoke(this, new FeatureUpdatedEventArgs(entry.Value.Key));
+                                FeatureUpdated?.Invoke(this, new FeatureUpdatedEventArgs(entry.Key));
                             }
                         }
                     }
