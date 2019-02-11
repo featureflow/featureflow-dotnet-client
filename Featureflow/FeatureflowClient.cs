@@ -9,11 +9,12 @@ namespace Featureflow.Client
     {
         private readonly FeatureflowConfig _config;
         private readonly IFeatureControlCache _featureControlCache; // local cache
-        private readonly IFeatureControlClient _featureControlClient; // retrieves features
+        private readonly PollingClient _pollingClient; // retrieves features
         private readonly FeatureflowEventsClient _eventsClient;
         private readonly FeatureflowStreamClient _streamClient;
         private readonly RestClient _restClient;
         private readonly Dictionary<string, Feature> _featureDefaults = new Dictionary<string, Feature>();
+        private bool disposedValue = false; // To detect redundant calls
 
         public FeatureflowClient(string apiKey)
             : this(apiKey, null, new FeatureflowConfig())
@@ -46,20 +47,29 @@ namespace Featureflow.Client
             _restClient = new RestClient(apiKey, config, restConfig);
 
             // start the featureControl Client
-            var featureControlClient = new PollingClient(config, _featureControlCache, _restClient);
-            var initTask = featureControlClient.InitAsync(); // initialise
+            var pollingClient = new PollingClient(config, _featureControlCache, _restClient);
+            var initTask = pollingClient.InitAsync(); // initialise
             var waitResult = initTask.Wait(_config.ConnectionTimeout);
             if (!waitResult)
             {
                 throw new TimeoutException("initialization failed");
             }
 
-            _featureControlClient = featureControlClient;
+            _pollingClient = pollingClient;
+            _pollingClient.FeatureUpdated += OnFeatureUpdated;
+            _pollingClient.FeatureDeleted += OnFeatureDeleted;
+
             _eventsClient = new FeatureflowEventsClient(_restClient, config);
 
             _streamClient = new FeatureflowStreamClient(_featureControlCache, _restClient, _config);
+            _streamClient.FeatureUpdated += OnFeatureUpdated;
+            _streamClient.FeatureDeleted += OnFeatureDeleted;
             _streamClient.Start();
         }
+
+        public event FeatureUpdatedEventHandler FeatureUpdated;
+
+        public event FeatureDeletedEventHandler FeatureDeleted;
 
         public Evaluate Evaluate(string featureKey, User user)
         {
@@ -116,5 +126,50 @@ namespace Featureflow.Client
                 }
             }
         }
+
+        private void OnFeatureUpdated(object sender, FeatureUpdatedEventArgs e)
+        {
+            FeatureUpdated?.Invoke(this, e);
+        }
+
+        private void OnFeatureDeleted(object sender, FeatureDeletedEventArgs e)
+        {
+            FeatureDeleted?.Invoke(this, e);
+        }
+
+        #region IDisposable Support
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    _pollingClient.FeatureUpdated -= OnFeatureUpdated;
+                    _pollingClient.FeatureDeleted -= OnFeatureDeleted;
+                    _pollingClient.Dispose();
+
+                    _streamClient.FeatureUpdated -= OnFeatureUpdated;
+                    _streamClient.FeatureDeleted -= OnFeatureDeleted;
+                    _streamClient.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        // ~FeatureflowClient() {
+        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        //   Dispose(false);
+        // }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+        }
+        #endregion
     }
 }

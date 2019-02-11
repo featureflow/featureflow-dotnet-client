@@ -27,6 +27,10 @@ namespace Featureflow.Client
             _sseClient.Disconnected += OnSseClient_Disconnected;
         }
 
+        internal event EventHandler<FeatureUpdatedEventArgs> FeatureUpdated;
+
+        internal event EventHandler<FeatureDeletedEventArgs> FeatureDeleted;
+
         internal void Start()
         {
             _canReinitializeControlCache = true;
@@ -50,12 +54,17 @@ namespace Featureflow.Client
                         {
                             _canReinitializeControlCache = false;
                             _controlCache.Update(entries);
+                            foreach (var entry in entries)
+                            {
+                                FeatureUpdated?.Invoke(this, new FeatureUpdatedEventArgs(entry.Value.Key));
+                            }
                         }
                         else
                         {
                             foreach (var entry in entries)
                             {
                                 _controlCache.Set(entry.Value);
+                                FeatureUpdated?.Invoke(this, new FeatureUpdatedEventArgs(entry.Value.Key));
                             }
                         }
                     }
@@ -73,6 +82,7 @@ namespace Featureflow.Client
                         foreach (var entry in entries)
                         {
                             _controlCache.Delete(entry);
+                            FeatureDeleted?.Invoke(this, new FeatureDeletedEventArgs(entry));
                         }
                     }
                     catch (Exception)
