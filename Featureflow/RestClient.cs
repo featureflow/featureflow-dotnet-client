@@ -25,6 +25,7 @@ namespace Featureflow.Client
             _config = config;
             _restConfig = restConfig;
             _httpClient = CreateHttpClient();
+            _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
         }
 
         internal HttpClient CreateHttpClient()
@@ -33,7 +34,6 @@ namespace Featureflow.Client
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("DotNetClient/" + _restConfig.SdkVersion);
             httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _apiKey);
-            httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
             return httpClient;
         }
 
@@ -49,8 +49,8 @@ namespace Featureflow.Client
                 // Using a new client after errors because: https://github.com/dotnet/corefx/issues/11224
                 _httpClient?.Dispose();
                 _httpClient = CreateHttpClient();
+                _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
 
-                // Thread.Sleep(TimeSpan.FromSeconds(1));
                 cts = new CancellationTokenSource(_config.ConnectionTimeout);
                 try
                 {
@@ -60,6 +60,7 @@ namespace Featureflow.Client
                 {
                     _httpClient?.Dispose();
                     _httpClient = CreateHttpClient();
+                    _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
                     if (tce.CancellationToken == cts.Token)
                     {
                         throw tce;
@@ -71,6 +72,7 @@ namespace Featureflow.Client
                 {
                     _httpClient?.Dispose();
                     _httpClient = CreateHttpClient();
+                    _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
                     throw ex;
                 }
             }

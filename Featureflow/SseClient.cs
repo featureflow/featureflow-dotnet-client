@@ -16,7 +16,6 @@ namespace Featureflow.Client
 
         private readonly RestClient _restClient;
         private readonly FeatureflowConfig _config;
-        private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
         private bool disposedValue = false; // To detect redundant calls
         private bool _started;
@@ -33,144 +32,139 @@ namespace Featureflow.Client
 
         internal event EventHandler<Disconnect> Disconnected;
 
-        internal void Start()
+        internal void Start(CancellationToken cancellationToken)
         {
-            if (!_started)
+            if (!_started && !cancellationToken.IsCancellationRequested)
             {
                 _started = true;
-                Task.Run(() => ReadStream(), _cts.Token);
+                Task.Run(() => ReadStream(cancellationToken), cancellationToken);
             }
         }
 
-        private async void ReadStream()
+        private async void ReadStream(CancellationToken cancellationToken)
         {
             var uri = new Uri(_config.StreamBaseUri, FeatureflowConfig.StreamFeaturesRestPath);
 
             try
             {
                 using (var client = _restClient.CreateHttpClient())
-                using (var response = await client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, _cts.Token))
                 {
-                    if (!response.IsSuccessStatusCode)
+                    client.DefaultRequestHeaders.Add("accept", "text/event-stream");
+                    using (var response = await client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
                     {
-                        throw new Exception("Client returned non-success code");
-                    }
-
-                    if (response.Headers.TryGetValues("content-type", out IEnumerable<string> contentTypes) && contentTypes != null)
-                    {
-                        if (!contentTypes.Contains("text/event-stream"))
+                        if (!response.IsSuccessStatusCode)
                         {
-                            throw new Exception("Server does not support SSE");
+                            throw new Exception("Client returned non-success code");
                         }
-                    }
 
-                    using (var stream = await response.Content.ReadAsStreamAsync())
-                    using (var reader = new StreamReader(stream))
-                    {
-                        string eventType = null;
-                        string eventId = null;
-                        StringBuilder sb = new StringBuilder();
-
-                        while (true)
+                        using (var stream = await response.Content.ReadAsStreamAsync())
+                        using (var reader = new StreamReader(stream))
                         {
-                            if (_cts.IsCancellationRequested)
+                            string eventType = null;
+                            string eventId = null;
+                            StringBuilder sb = new StringBuilder();
+
+                            while (!reader.EndOfStream)
                             {
-                                break;
-                            }
+                                cancellationToken.ThrowIfCancellationRequested();
 
-                            var s = await reader.ReadLineAsync();
+                                var s = await reader.ReadLineAsync();
 
-                            if (s == null)
-                            {
-                                continue;
-                            }
-
-                            /*
-                             * https://www.w3.org/TR/eventsource/#event-stream-interpretation
-                             * Lines must be processed, in the order they are received, as follows:
-                             *   If the line is empty (a blank line)
-                             *     Dispatch the event, as defined below.
-                             *   If the line starts with a U+003A COLON character (:)
-                             *     Ignore the line.
-                             *   If the line contains a U+003A COLON character (:)
-                             *     Collect the characters on the line before the first U+003A COLON character (:), and let field be that string.
-                             *     Collect the characters on the line after the first U+003A COLON character (:), and let value be that string. If value starts with a U+0020 SPACE character, remove it from value.
-                             *     Process the field using the steps described below, using field as the field name and value as the field value.
-                             *   Otherwise, the string is not empty but does not contain a U+003A COLON character (:)
-                             *     Process the field using the steps described below, using the whole line as the field name, and the empty string as the field value.
-                             */
-
-                            if (s == string.Empty)
-                            {
-                                if (!_cts.IsCancellationRequested)
+                                if (s == null)
                                 {
-                                    MessageReceived?.Invoke(this, new Message(eventType ?? "message", sb.ToString()));
+                                    continue;
                                 }
 
-                                eventType = null;
-                                eventId = null;
-                                sb.Clear();
-                            }
-                            else if (s.StartsWith(":"))
-                            {
-                                // Ignore the line.
-                            }
-                            else
-                            {
-                                var sepPos = s.IndexOf(':');
-                                string field = null;
-                                string value = null;
-                                if (sepPos != -1)
+                                /*
+                                 * https://www.w3.org/TR/eventsource/#event-stream-interpretation
+                                 * Lines must be processed, in the order they are received, as follows:
+                                 *   If the line is empty (a blank line)
+                                 *     Dispatch the event, as defined below.
+                                 *   If the line starts with a U+003A COLON character (:)
+                                 *     Ignore the line.
+                                 *   If the line contains a U+003A COLON character (:)
+                                 *     Collect the characters on the line before the first U+003A COLON character (:), and let field be that string.
+                                 *     Collect the characters on the line after the first U+003A COLON character (:), and let value be that string. If value starts with a U+0020 SPACE character, remove it from value.
+                                 *     Process the field using the steps described below, using field as the field name and value as the field value.
+                                 *   Otherwise, the string is not empty but does not contain a U+003A COLON character (:)
+                                 *     Process the field using the steps described below, using the whole line as the field name, and the empty string as the field value.
+                                 */
+
+                                if (s == string.Empty)
                                 {
-                                    field = s.Substring(0, sepPos);
-                                    value = s.Substring(sepPos);
-                                    if (value.StartsWith(" "))
+                                    if (!cancellationToken.IsCancellationRequested)
                                     {
-                                        value = value.Substring(1);
+                                        MessageReceived?.Invoke(this, new Message(eventType ?? "message", sb.ToString()));
                                     }
+
+                                    eventType = null;
+                                    eventId = null;
+                                    sb.Clear();
+                                }
+                                else if (s.StartsWith(":"))
+                                {
+                                    // Ignore the line.
                                 }
                                 else
                                 {
-                                    field = s;
-                                    value = string.Empty;
-                                }
-
-                                switch (field)
-                                {
-                                    case "event":
-                                        eventType = value;
-                                        break;
-
-                                    case "data":
-                                        sb.Append(value);
-                                        sb.Append('\u000A');
-                                        break;
-
-                                    case "id":
-                                        eventId = _lastEventId = value;
-                                        break;
-
-                                    case "retry":
-                                        if (int.TryParse(value, out int ms))
+                                    var sepPos = s.IndexOf(':');
+                                    string field = null;
+                                    string value = null;
+                                    if (sepPos != -1)
+                                    {
+                                        field = s.Substring(0, sepPos);
+                                        value = s.Substring(sepPos + 1);
+                                        if (value.StartsWith(" "))
                                         {
-                                            _reconnectionTime = TimeSpan.FromMilliseconds(ms);
+                                            value = value.Substring(1);
                                         }
+                                    }
+                                    else
+                                    {
+                                        field = s;
+                                        value = string.Empty;
+                                    }
 
-                                        break;
+                                    switch (field)
+                                    {
+                                        case "event":
+                                            eventType = value;
+                                            break;
+
+                                        case "data":
+                                            sb.Append(value);
+                                            sb.Append('\u000A');
+                                            break;
+
+                                        case "id":
+                                            eventId = _lastEventId = value;
+                                            break;
+
+                                        case "retry":
+                                            if (int.TryParse(value, out int ms))
+                                            {
+                                                _reconnectionTime = TimeSpan.FromMilliseconds(ms);
+                                            }
+
+                                            break;
+                                    }
                                 }
                             }
-                        }
 
-                        if (!_cts.IsCancellationRequested)
-                        {
-                            Disconnected?.Invoke(this, new Disconnect(DefaultReconnectionTime, null));
+                            if (!cancellationToken.IsCancellationRequested)
+                            {
+                                Disconnected?.Invoke(this, new Disconnect(DefaultReconnectionTime, null));
+                            }
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Disconnected?.Invoke(this, new Disconnect(DefaultReconnectionTime, ex));
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    Disconnected?.Invoke(this, new Disconnect(DefaultReconnectionTime, ex));
+                }
             }
 
             _started = false;
@@ -184,7 +178,6 @@ namespace Featureflow.Client
             {
                 if (disposing)
                 {
-                    _cts.Cancel();
                 }
 
                 disposedValue = true;

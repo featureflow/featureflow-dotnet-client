@@ -11,6 +11,7 @@ namespace Featureflow.Client
         private readonly IFeatureControlCache _featureControlCache; // local cache
         private readonly IFeatureControlClient _featureControlClient; // retrieves features
         private readonly FeatureflowEventsClient _eventsClient;
+        private readonly FeatureflowStreamClient _streamClient;
         private readonly RestClient _restClient;
         private readonly Dictionary<string, Feature> _featureDefaults = new Dictionary<string, Feature>();
 
@@ -54,6 +55,9 @@ namespace Featureflow.Client
 
             _featureControlClient = featureControlClient;
             _eventsClient = new FeatureflowEventsClient(_restClient, config);
+
+            _streamClient = new FeatureflowStreamClient(_featureControlCache, _restClient, _config);
+            _streamClient.Start();
         }
 
         public Evaluate Evaluate(string featureKey, User user)
