@@ -14,7 +14,7 @@
     <PackageProjectUrl>www.featureflow.io</PackageProjectUrl>
     <Summary>The DotNet Client for Featureflow runtime feature management</Summary>
     <PackageTags>Features Feature Management Release Dark launch Feature Toggles</PackageTags>
-    <PackageVersion>1.0.2</PackageVersion>
+    <PackageVersion>1.1.0</PackageVersion>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="FeatureflowLogger.cs" />
