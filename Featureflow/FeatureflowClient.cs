@@ -16,18 +16,19 @@ namespace Featureflow.Client
         private readonly Dictionary<string, Feature> _featureDefaults = new Dictionary<string, Feature>();
 
         public FeatureflowClient(string apiKey)
-            : this(apiKey, new List<Feature>(), new FeatureflowConfig())
+            : this(apiKey, null, new FeatureflowConfig())
         {
         }
 
-        public FeatureflowClient(string apiKey, List<Feature> features)
-            : this(apiKey, features, new FeatureflowConfig())
+        public FeatureflowClient(string apiKey, IEnumerable<Feature> defaultFeatures)
+            : this(apiKey, defaultFeatures, new FeatureflowConfig())
         {
         }
 
-        public FeatureflowClient(string apiKey, List<Feature> features, FeatureflowConfig config)
+        public FeatureflowClient(string apiKey, IEnumerable<Feature> defaultFeatures, FeatureflowConfig config)
         {
-            features?.ForEach(feature => _featureDefaults[feature.Key] = feature);
+            InitializeDefaultFeatures(defaultFeatures);
+
             _featureControlCache = new SimpleMemoryFeatureCache();
             _config = config;
 
@@ -93,6 +94,27 @@ namespace Featureflow.Client
             }
 
             return new Evaluate(featureControl, user, failoverVariant, _eventsClient);
+        }
+
+        private void InitializeDefaultFeatures(IEnumerable<Feature> defaultFeatures)
+        {
+            if (defaultFeatures != null)
+            {
+                foreach (Feature feature in defaultFeatures)
+                {
+                    if (feature == null)
+                    {
+                        throw new ArgumentNullException("Default feature is null");
+                    }
+
+                    if (feature.Key == null)
+                    {
+                        throw new ArgumentNullException("Default feature have NULL key");
+                    }
+
+                    _featureDefaults[feature.Key] = feature;
+                }
+            }
         }
     }
 }
