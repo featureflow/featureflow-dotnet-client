@@ -23,7 +23,7 @@ namespace Featureflow.Tests
 			var client = FeatureflowClientFactory.Create("srv-env-685e066dea464f88be14effbf65cf69c"); //
 			Console.WriteLine("Created client");
 			User user = new User("1234");
-			user.Attributes.Add("age", new List<object> {11L});
+			user.Attributes.Add("age", new List<object> {11});
 			
 			var result = client.Evaluate("example-feature", user).Value();
 			Console.WriteLine(result);
@@ -56,7 +56,7 @@ namespace Featureflow.Tests
 		    }, new FeatureflowConfig());		    
 		    var user = new User("1234");
 		    user.WithAttribute("region", "sydney");
-		    user.WithAttribute("days", new List<object> {11L, 1L, 4L, 29L});
+		    user.WithAttribute("days", new List<object> {11, 1, 4, 29});
 		    user.WithSessionAttribute("dayofweek", 11L);
 		    
 		    var result = client.Evaluate("example-feature", user).Value();
