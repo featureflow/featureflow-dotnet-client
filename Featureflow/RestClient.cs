@@ -80,7 +80,7 @@ namespace Featureflow.Client
 
         internal async Task<bool> SendEventsAsync(IEnumerable<Event> events, CancellationToken cancellationToken)
         {
-            var uri = new Uri(_config.BaseUri, FeatureflowConfig.EventsRestPath);
+            var uri = new Uri(_config.EventsBaseUri, FeatureflowConfig.EventsRestPath);
             var content = new StringContent(JsonConvert.SerializeObject(events), Encoding.UTF8, "application/json");
 
             var timeoutCts = new CancellationTokenSource(_config.ConnectionTimeout);
