@@ -30,7 +30,7 @@ namespace Featureflow.Client
 
         private FeatureflowClient(string apiKey, IEnumerable<Feature> defaultFeatures, FeatureflowConfig config)
         {
-            _config = config;
+            _config = config ?? new FeatureflowConfig();
             _featureControlCache = new SimpleMemoryFeatureCache();
 
             InitializeDefaultFeatures(defaultFeatures);
@@ -43,13 +43,13 @@ namespace Featureflow.Client
                         .GetTypeInfo().Assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute))).InformationalVersion
                 };
 
-                _restClient = new RestClient(apiKey, config, restConfig);
-                _eventsClient = new FeatureflowEventsClient(_restClient, config);
+                _restClient = new RestClient(apiKey, _config, restConfig);
+                _eventsClient = new FeatureflowEventsClient(_restClient, _config);
 
                 switch (_config.GetFeaturesMethod)
                 {
                     case GetFeaturesMethod.Polling:
-                        _pollingClient = new PollingClient(config, _featureControlCache, _restClient);
+                        _pollingClient = new PollingClient(_config, _featureControlCache, _restClient);
                         _pollingClient.FeatureUpdated += OnFeatureUpdated;
                         _pollingClient.FeatureDeleted += OnFeatureDeleted;
                         break;
