@@ -145,8 +145,8 @@ namespace Featureflow.Client
         private static void AddAdditionalAttributes(User user)
         {
             user.SessionAttributes["featureflow.user.id"] = new List<object> { user.Id };
-            user.SessionAttributes["featureflow.hourofday"] = new List<object> { DateTime.Now.Hour };
-            user.SessionAttributes["featureflow.date"] = new List<object> { DateTime.Now };
+            user.SessionAttributes["featureflow.hourofday"] = new List<object> { DateTime.UtcNow.Hour };
+            user.SessionAttributes["featureflow.date"] = new List<object> { DateTime.UtcNow };
         }
 
         private string SHA1HashStringForUTF8String(string str)

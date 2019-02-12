@@ -14,7 +14,7 @@ namespace Featureflow.Client
         private readonly FeatureflowConfig _config;
         private readonly RestClient _restClient;
         private readonly Timer _timer;
-        private readonly ManualResetEventSlim _waiter = new ManualResetEventSlim(true);
+        private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         private bool disposedValue = false; // To detect redundant calls
 
         internal PollingClient(FeatureflowConfig config, IFeatureControlCache featureControlCache, RestClient restClient)
@@ -29,17 +29,11 @@ namespace Featureflow.Client
 
         internal event EventHandler<FeatureDeletedEventArgs> FeatureDeleted;
 
-        internal Task InitAsync()
+        internal async Task InitAsync(CancellationToken cancellationToken)
         {
-            return Task.Run(LoadFeaturesAsync)
-                .ContinueWith(_ =>
-                {
-                    if (_.IsCompleted && _.Result != null)
-                    {
-                        _featureControlCache.Update(_.Result);
-                        InitializeTimer();
-                    }
-                });
+            var features = await _restClient.GetFeatureControlsAsync(cancellationToken).ConfigureAwait(false);
+            _featureControlCache.Update(features);
+            InitializeTimer();
         }
 
         #region IDisposable Support
@@ -50,8 +44,8 @@ namespace Featureflow.Client
             {
                 if (disposing)
                 {
-                    _waiter.Wait();
                     _timer.Dispose();
+                    _cts.Cancel();
                 }
 
                 disposedValue = true;
@@ -74,12 +68,22 @@ namespace Featureflow.Client
         {
             try
             {
-                _waiter.Reset();
-                var newFeatures = await LoadFeaturesAsync();
+                if (_cts.IsCancellationRequested)
+                {
+                    return;
+                }
+
+                var newFeatures = await _restClient.GetFeatureControlsAsync(_cts.Token).ConfigureAwait(false);
+
+                if (_cts.IsCancellationRequested)
+                {
+                    return;
+                }
 
                 var oldKeys = new HashSet<string>(_featureControlCache.GetAll().Keys);
 
                 _featureControlCache.Update(newFeatures);
+
 
                 foreach (var newFeature in newFeatures)
                 {
@@ -94,15 +98,11 @@ namespace Featureflow.Client
             }
             finally
             {
-                InitializeTimer();
-                _waiter.Set();
+                if (!_cts.IsCancellationRequested)
+                {
+                    InitializeTimer();
+                }
             }
-        }
-
-        private async Task<IDictionary<string, FeatureControl>> LoadFeaturesAsync()
-        {
-            var controls = await _restClient.GetAllFeatureControls().ConfigureAwait(false);
-            return controls;
         }
     }
 }

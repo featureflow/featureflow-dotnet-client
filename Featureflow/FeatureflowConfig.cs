@@ -22,5 +22,7 @@ namespace Featureflow.Client
         public TimeSpan ConnectionTimeout { get; internal set; } = DefaultConnectionTimeout;
 
         public bool Offline { get; internal set; }
+
+        public GetFeaturesMethod GetFeaturesMethod { get; internal set; } = GetFeaturesMethod.Sse;
     }
 }

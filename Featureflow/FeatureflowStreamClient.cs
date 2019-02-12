@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace Featureflow.Client
@@ -12,14 +13,17 @@ namespace Featureflow.Client
         private const string FeaturesDeletedEventType = "features.deleted";
 
         private readonly IFeatureControlCache _controlCache;
+        private readonly FeatureflowConfig _config;
         private readonly SseClient _sseClient;
         private readonly Timer _reconnectionTimer;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
+        private readonly ManualResetEventSlim _initializationEvent = new ManualResetEventSlim(false);
         private bool _canReinitializeControlCache;
         private bool disposedValue = false; // To detect redundant calls
 
-        internal FeatureflowStreamClient(IFeatureControlCache controlCache, RestClient restClient, FeatureflowConfig config)
+        internal FeatureflowStreamClient(FeatureflowConfig config, IFeatureControlCache controlCache, RestClient restClient)
         {
+            _config = config;
             _controlCache = controlCache;
             _reconnectionTimer = new Timer(OnTimer, null, TimeSpan.FromMilliseconds(-1), TimeSpan.FromMilliseconds(-1));
             _sseClient = new SseClient(restClient, config);
@@ -31,7 +35,15 @@ namespace Featureflow.Client
 
         internal event EventHandler<FeatureDeletedEventArgs> FeatureDeleted;
 
-        internal void Start()
+        internal void Init(CancellationToken cancellationToken)
+        {
+            Start();
+
+            var combinedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cts.Token);
+            _initializationEvent.Wait(_config.ConnectionTimeout, combinedCts.Token);
+        }
+
+        private void Start()
         {
             _canReinitializeControlCache = true;
             _sseClient.Start(_cts.Token);
@@ -58,6 +70,8 @@ namespace Featureflow.Client
                             {
                                 FeatureUpdated?.Invoke(this, new FeatureUpdatedEventArgs(entry.Key));
                             }
+
+                            _initializationEvent.Set();
                         }
                         else
                         {
@@ -108,6 +122,7 @@ namespace Featureflow.Client
                 {
                     _cts.Cancel();
 
+                    _initializationEvent.Set();
                     _reconnectionTimer.Dispose();
 
                     _sseClient.Disconnected -= OnSseClient_Disconnected;
