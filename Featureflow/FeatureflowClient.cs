@@ -45,26 +45,35 @@ namespace Featureflow.Client
             };
 
             _restClient = new RestClient(apiKey, config, restConfig);
-
-            // start the featureControl Client
-            var pollingClient = new PollingClient(config, _featureControlCache, _restClient);
-            var initTask = pollingClient.InitAsync(); // initialise
-            var waitResult = initTask.Wait(_config.ConnectionTimeout);
-            if (!waitResult)
-            {
-                throw new TimeoutException("initialization failed");
-            }
-
-            _pollingClient = pollingClient;
-            _pollingClient.FeatureUpdated += OnFeatureUpdated;
-            _pollingClient.FeatureDeleted += OnFeatureDeleted;
-
             _eventsClient = new FeatureflowEventsClient(_restClient, config);
 
-            _streamClient = new FeatureflowStreamClient(_featureControlCache, _restClient, _config);
-            _streamClient.FeatureUpdated += OnFeatureUpdated;
-            _streamClient.FeatureDeleted += OnFeatureDeleted;
-            _streamClient.Start();
+            switch (_config.GetFeaturesMethod)
+            {
+                case GetFeaturesMethod.Polling:
+                    var pollingClient = new PollingClient(config, _featureControlCache, _restClient);
+                    var initTask = pollingClient.InitAsync(); // initialise
+                    var waitResult = initTask.Wait(_config.ConnectionTimeout);
+                    if (!waitResult)
+                    {
+                        throw new TimeoutException("initialization failed");
+                    }
+
+                    _pollingClient = pollingClient;
+                    _pollingClient.FeatureUpdated += OnFeatureUpdated;
+                    _pollingClient.FeatureDeleted += OnFeatureDeleted;
+                    break;
+
+                case GetFeaturesMethod.Sse:
+                    _streamClient = new FeatureflowStreamClient(_featureControlCache, _restClient, _config);
+                    _streamClient.FeatureUpdated += OnFeatureUpdated;
+                    _streamClient.FeatureDeleted += OnFeatureDeleted;
+                    _streamClient.Start();
+                    if (!_streamClient.WaitForInitialization())
+                    {
+                        throw new TimeoutException("initialization failed");
+                    }
+                    break;
+            }
         }
 
         public event FeatureUpdatedEventHandler FeatureUpdated;
@@ -145,13 +154,19 @@ namespace Featureflow.Client
             {
                 if (disposing)
                 {
-                    _pollingClient.FeatureUpdated -= OnFeatureUpdated;
-                    _pollingClient.FeatureDeleted -= OnFeatureDeleted;
-                    _pollingClient.Dispose();
+                    if (_pollingClient != null)
+                    {
+                        _pollingClient.FeatureUpdated -= OnFeatureUpdated;
+                        _pollingClient.FeatureDeleted -= OnFeatureDeleted;
+                        _pollingClient.Dispose();
+                    }
 
-                    _streamClient.FeatureUpdated -= OnFeatureUpdated;
-                    _streamClient.FeatureDeleted -= OnFeatureDeleted;
-                    _streamClient.Dispose();
+                    if (_streamClient != null)
+                    {
+                        _streamClient.FeatureUpdated -= OnFeatureUpdated;
+                        _streamClient.FeatureDeleted -= OnFeatureDeleted;
+                        _streamClient.Dispose();
+                    }
                 }
 
                 disposedValue = true;

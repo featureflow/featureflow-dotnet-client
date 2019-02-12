@@ -12,15 +12,18 @@ namespace Featureflow.Client
         private const string FeaturesDeletedEventType = "features.deleted";
 
         private readonly IFeatureControlCache _controlCache;
+        private readonly FeatureflowConfig _config;
         private readonly SseClient _sseClient;
         private readonly Timer _reconnectionTimer;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
+        private readonly ManualResetEventSlim _initializationEvent = new ManualResetEventSlim(false);
         private bool _canReinitializeControlCache;
         private bool disposedValue = false; // To detect redundant calls
 
         internal FeatureflowStreamClient(IFeatureControlCache controlCache, RestClient restClient, FeatureflowConfig config)
         {
             _controlCache = controlCache;
+            _config = config;
             _reconnectionTimer = new Timer(OnTimer, null, TimeSpan.FromMilliseconds(-1), TimeSpan.FromMilliseconds(-1));
             _sseClient = new SseClient(restClient, config);
             _sseClient.MessageReceived += OnSseClient_MessageReceived;
@@ -35,6 +38,11 @@ namespace Featureflow.Client
         {
             _canReinitializeControlCache = true;
             _sseClient.Start(_cts.Token);
+        }
+
+        internal bool WaitForInitialization()
+        {
+            return _initializationEvent.Wait(_config.ConnectionTimeout, _cts.Token);
         }
 
         private void OnTimer(object state)
@@ -58,6 +66,8 @@ namespace Featureflow.Client
                             {
                                 FeatureUpdated?.Invoke(this, new FeatureUpdatedEventArgs(entry.Key));
                             }
+
+                            _initializationEvent.Set();
                         }
                         else
                         {
@@ -108,6 +118,7 @@ namespace Featureflow.Client
                 {
                     _cts.Cancel();
 
+                    _initializationEvent.Set();
                     _reconnectionTimer.Dispose();
 
                     _sseClient.Disconnected -= OnSseClient_Disconnected;

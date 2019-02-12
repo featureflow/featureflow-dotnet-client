@@ -8,6 +8,7 @@ namespace Featureflow.Client
         private Uri _streamBaseUri = FeatureflowConfig.DefaultStreamBaseUri;
         private TimeSpan _connectionTimeout = FeatureflowConfig.DefaultConnectionTimeout;
         private bool _offline = false;
+        private GetFeaturesMethod _method = GetFeaturesMethod.Sse;
 
         public FeatureflowConfigBuilder WithConnectionTimeout(TimeSpan connectionTimeout)
         {
@@ -45,6 +46,12 @@ namespace Featureflow.Client
             return this;
         }
 
+        public FeatureflowConfigBuilder WithGetFeaturesMethod(GetFeaturesMethod method)
+        {
+            _method = method;
+            return this;
+        }
+
         public FeatureflowConfig Build()
         {
             return new FeatureflowConfig
@@ -52,7 +59,8 @@ namespace Featureflow.Client
                 BaseUri = _baseUri,
                 StreamBaseUri = _streamBaseUri,
                 ConnectionTimeout = _connectionTimeout,
-                Offline = _offline
+                Offline = _offline,
+                GetFeaturesMethod = _method,
             };
         }
     }
