@@ -60,7 +60,7 @@ namespace Featureflow.Client
             {
                 try
                 {
-                    await _restClient.SendEventsAsync(events, _cts.Token);
+                    await _restClient.SendEventsAsync(events, _cts.Token).ConfigureAwait(false);
                 }
                 catch (Exception)
                 {

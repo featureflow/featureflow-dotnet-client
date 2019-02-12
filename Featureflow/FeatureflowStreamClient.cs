@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace Featureflow.Client
@@ -20,10 +21,10 @@ namespace Featureflow.Client
         private bool _canReinitializeControlCache;
         private bool disposedValue = false; // To detect redundant calls
 
-        internal FeatureflowStreamClient(IFeatureControlCache controlCache, RestClient restClient, FeatureflowConfig config)
+        internal FeatureflowStreamClient(FeatureflowConfig config, IFeatureControlCache controlCache, RestClient restClient)
         {
-            _controlCache = controlCache;
             _config = config;
+            _controlCache = controlCache;
             _reconnectionTimer = new Timer(OnTimer, null, TimeSpan.FromMilliseconds(-1), TimeSpan.FromMilliseconds(-1));
             _sseClient = new SseClient(restClient, config);
             _sseClient.MessageReceived += OnSseClient_MessageReceived;
@@ -34,15 +35,18 @@ namespace Featureflow.Client
 
         internal event EventHandler<FeatureDeletedEventArgs> FeatureDeleted;
 
-        internal void Start()
+        internal void Init(CancellationToken cancellationToken)
+        {
+            Start();
+
+            var combinedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cts.Token);
+            _initializationEvent.Wait(_config.ConnectionTimeout, combinedCts.Token);
+        }
+
+        private void Start()
         {
             _canReinitializeControlCache = true;
             _sseClient.Start(_cts.Token);
-        }
-
-        internal bool WaitForInitialization()
-        {
-            return _initializationEvent.Wait(_config.ConnectionTimeout, _cts.Token);
         }
 
         private void OnTimer(object state)
