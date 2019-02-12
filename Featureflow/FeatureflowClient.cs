@@ -70,7 +70,7 @@ namespace Featureflow.Client
         public Evaluate Evaluate(string featureKey, User user)
         {
             EnsureNotDisposed();
-            return EvaluateInternal(_featureControlCache.Get(featureKey), user);
+            return EvaluateInternal(featureKey, _featureControlCache.Get(featureKey), user);
         }
 
         public Evaluate Evaluate(string featureKey)
@@ -83,7 +83,7 @@ namespace Featureflow.Client
             EnsureNotDisposed();
             return _featureControlCache
                 .GetAll()
-                .ToDictionary(_ => _.Key, _ => EvaluateInternal(_.Value, user));
+                .ToDictionary(_ => _.Key, _ => EvaluateInternal(_.Key, _.Value, user));
         }
 
         public Dictionary<string, Evaluate> EvaluateAll()
@@ -146,12 +146,16 @@ namespace Featureflow.Client
             return Task.FromResult(true);
         }
 
-        private Evaluate EvaluateInternal(FeatureControl featureControl, User user)
+        private Evaluate EvaluateInternal(string featureKey, FeatureControl featureControl, User user)
         {
+            if (string.IsNullOrEmpty(featureKey))
+            {
+                throw new ArgumentException(nameof(featureKey));
+            }
+
             var failoverVariant = "off";
 
-            if (featureControl != null &&
-                _featureDefaults.TryGetValue(featureControl.Key, out var failoverFeature))
+            if (_featureDefaults.TryGetValue(featureControl?.Key ?? featureKey, out var failoverFeature))
             {
                 failoverVariant = failoverFeature.FailoverVariant;
             }
