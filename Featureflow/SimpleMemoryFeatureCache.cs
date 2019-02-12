@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Featureflow.Client
 {
     internal class SimpleMemoryFeatureCache : IFeatureControlCache
     {
-        // private static readonly ILogger Logger = ApplicationLogging.CreateLogger<SimpleMemoryFeatureCache>();
         private readonly object _guard = new object();
         private Dictionary<string, FeatureControl> _controls;
 
@@ -43,11 +43,19 @@ namespace Featureflow.Client
             }
         }
 
+        public Dictionary<string, FeatureControl> GetAll()
+        {
+            lock (_guard)
+            {
+                return new Dictionary<string, FeatureControl>(_controls);
+            }
+        }
+
         public void Set(FeatureControl featureControl)
         {
             lock (_guard)
             {
-                _controls.Add(featureControl.Key, featureControl);
+                _controls[featureControl.Key] = featureControl;
             }
         }
 

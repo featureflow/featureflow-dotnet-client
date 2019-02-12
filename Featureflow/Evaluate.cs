@@ -10,11 +10,22 @@ namespace Featureflow.Client
     {
         private const string Salt = "1";
 
-        private readonly string evaluateResult;
+        private readonly FeatureflowEventsClient _featureflowEventsClient;
+        private readonly FeatureControl _control;
+        private readonly User _user;
+        private readonly string _evaluateResult;
 
-        public Evaluate(FeatureControl feature, User user, string failoverVariant)
+        internal Evaluate(FeatureControl control, User user, string failoverVariant, FeatureflowEventsClient featureflowEventsClient)
         {
-            evaluateResult = feature == null ? failoverVariant : CalculateVariant(feature, user);
+            _featureflowEventsClient = featureflowEventsClient;
+            _control = control;
+            _user = user;
+            _evaluateResult = _control == null ? failoverVariant : CalculateVariant(_control, _user);
+        }
+
+        public Evaluate(FeatureControl control, User user, string failoverVariant)
+            : this(control, user, failoverVariant, null)
+        {
         }
 
         public bool IsOn()
@@ -29,17 +40,40 @@ namespace Featureflow.Client
 
         public bool Is(string variant)
         {
-            if (evaluateResult == null)
+            if (_evaluateResult == null)
             {
                 return variant == null;
             }
 
-            return evaluateResult.Equals(variant);
+            QueueEvent(variant);
+
+            return _evaluateResult.Equals(variant);
         }
 
         public string Value()
         {
-            return evaluateResult;
+            QueueEvent(null);
+            return _evaluateResult;
+        }
+
+        private void QueueEvent(string expectedVariant)
+        {
+            if (_featureflowEventsClient != null && _control != null)
+            {
+                _featureflowEventsClient.QueueEvent(new Event
+                {
+                    EventType = "evaluate",
+                    FeatureKey = _control.Key,
+                    EvaluatedVariant = _evaluateResult,
+                    ExpectedVariant = expectedVariant,
+                    User = new User(_user.Id)
+                    {
+                        Attributes = new Dictionary<string, List<object>>(_user.Attributes),
+                        SessionAttributes = null,
+                        BucketKey = null,
+                    },
+                });
+            }
         }
 
         private string CalculateVariant(FeatureControl featureControl, User user)

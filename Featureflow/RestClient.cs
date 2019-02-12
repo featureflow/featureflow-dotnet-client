@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -11,7 +12,6 @@ namespace Featureflow.Client
 {
     internal class RestClient
     {
-        // private static readonly ILogger Logger = ApplicationLogging.CreateLogger<RestClient>();
         private readonly string _apiKey;
         private readonly HttpClientHandler httpClientHandler = new HttpClientHandler();
         private readonly FeatureflowConfig _config;
@@ -25,6 +25,7 @@ namespace Featureflow.Client
             _config = config;
             _restConfig = restConfig;
             _httpClient = CreateHttpClient();
+            _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
         }
 
         internal HttpClient CreateHttpClient()
@@ -33,7 +34,6 @@ namespace Featureflow.Client
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("DotNetClient/" + _restConfig.SdkVersion);
             httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _apiKey);
-            httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
             return httpClient;
         }
 
@@ -49,9 +49,8 @@ namespace Featureflow.Client
                 // Using a new client after errors because: https://github.com/dotnet/corefx/issues/11224
                 _httpClient?.Dispose();
                 _httpClient = CreateHttpClient();
+                _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
 
-                // Logger<>.LogDebug("Error getting feature flags: " + Util.ExceptionMessage(e) +" waiting 1 second before retrying.");
-                // Thread.Sleep(TimeSpan.FromSeconds(1));
                 cts = new CancellationTokenSource(_config.ConnectionTimeout);
                 try
                 {
@@ -61,6 +60,7 @@ namespace Featureflow.Client
                 {
                     _httpClient?.Dispose();
                     _httpClient = CreateHttpClient();
+                    _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
                     if (tce.CancellationToken == cts.Token)
                     {
                         throw tce;
@@ -72,15 +72,36 @@ namespace Featureflow.Client
                 {
                     _httpClient?.Dispose();
                     _httpClient = CreateHttpClient();
+                    _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
                     throw ex;
+                }
+            }
+        }
+
+        internal async Task<bool> SendEventsAsync(IEnumerable<Event> events, CancellationToken cancellationToken)
+        {
+            var uri = new Uri(_config.EventsBaseUri, FeatureflowConfig.EventsRestPath);
+            var content = new StringContent(JsonConvert.SerializeObject(events), Encoding.UTF8, "application/json");
+
+            var timeoutCts = new CancellationTokenSource(_config.ConnectionTimeout);
+            var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+
+            using (var client = CreateHttpClient())
+            {
+                client.DefaultRequestHeaders.Add("Accept", "*/*");
+                client.DefaultRequestHeaders.Add("Accept-Enconding", "gzip,deflate");
+                client.DefaultRequestHeaders.Add("Accept-Language", "en-US,en;q=0.8");
+
+                using (var response = await client.PostAsync(uri, content, linkedCts.Token))
+                {
+                    return response.IsSuccessStatusCode;
                 }
             }
         }
 
         private async Task<IDictionary<string, FeatureControl>> GetFeatureControls(CancellationTokenSource cts)
         {
-            // Logger.LogDebug("Getting all flags with uri: " + _uri.AbsoluteUri);
-            var requestUri = new Uri(_config.BaseUri, "api/sdk/v1/features");
+            var requestUri = new Uri(_config.BaseUri, FeatureflowConfig.FeaturesRestPath);
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
             if (_etag != null)
             {
@@ -91,7 +112,6 @@ namespace Featureflow.Client
             {
                 if (response.StatusCode == HttpStatusCode.NotModified)
                 {
-                    // Logger.LogDebug("Get all flags returned 304: not modified");
                     return null;
                 }
 
@@ -99,7 +119,6 @@ namespace Featureflow.Client
                 response.EnsureSuccessStatusCode();
                 var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 var flags = JsonConvert.DeserializeObject<IDictionary<string, FeatureControl>>(result);
-                //// Logger.LogDebug("Get all flags returned " + flags.Keys.Count + " feature flags");
                 return flags;
             }
         }

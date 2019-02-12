@@ -1,9 +1,25 @@
-﻿namespace Featureflow.Client
+﻿using System;
+using System.Collections.Generic;
+
+namespace Featureflow.Client
 {
+    public delegate void FeatureUpdatedEventHandler(IFeatureflowClient sender, FeatureUpdatedEventArgs args);
+
+    public delegate void FeatureDeletedEventHandler(IFeatureflowClient sender, FeatureDeletedEventArgs args);
+
     public interface IFeatureflowClient
+        : IDisposable
     {
-        Evaluate Evaluate(string featureKey, User user);
+        event FeatureUpdatedEventHandler FeatureUpdated;
+
+        event FeatureDeletedEventHandler FeatureDeleted;
 
         Evaluate Evaluate(string featureKey);
+
+        Evaluate Evaluate(string featureKey, User user);
+
+        Dictionary<string, Evaluate> EvaluateAll();
+
+        Dictionary<string, Evaluate> EvaluateAll(User user);
     }
 }

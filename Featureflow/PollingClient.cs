@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Featureflow.Client
 {
-    internal class PollingClient : IFeatureControlClient
+    internal class PollingClient
     {
-        // private static readonly ILogger Logger = ApplicationLogging.CreateLogger<PollingClient>();
         private static readonly TimeSpan PollPeriod = TimeSpan.FromSeconds(30);
 
         private readonly IFeatureControlCache _featureControlCache;
@@ -24,6 +24,10 @@ namespace Featureflow.Client
             _restClient = restClient;
             _timer = new Timer(new TimerCallback(OnTimer), null, TimeSpan.FromMilliseconds(-1), TimeSpan.FromMilliseconds(-1));
         }
+
+        internal event EventHandler<FeatureUpdatedEventArgs> FeatureUpdated;
+
+        internal event EventHandler<FeatureDeletedEventArgs> FeatureDeleted;
 
         internal Task InitAsync()
         {
@@ -72,7 +76,21 @@ namespace Featureflow.Client
             {
                 _waiter.Reset();
                 var newFeatures = await LoadFeaturesAsync();
+
+                var oldKeys = new HashSet<string>(_featureControlCache.GetAll().Keys);
+
                 _featureControlCache.Update(newFeatures);
+
+                foreach (var newFeature in newFeatures)
+                {
+                    FeatureUpdated?.Invoke(this, new FeatureUpdatedEventArgs(newFeature.Key));
+                }
+
+                oldKeys.ExceptWith(newFeatures.Keys);
+                foreach (var missingKey in oldKeys)
+                {
+                    FeatureDeleted?.Invoke(this, new FeatureDeletedEventArgs(missingKey));
+                }
             }
             finally
             {
