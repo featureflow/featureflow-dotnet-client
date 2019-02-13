@@ -27,7 +27,11 @@ Install-Package Featureflow
 Get your 'Server Environment Api Key' from the environment page in featureflow and instantiate a singleton client:
 #### Instantiate the client
 ```c#
-  var client = new FeatureflowClient("srv-env-b4b1bdac23ac47558165851a96899019");
+  var client = FeatureflowClientFactory.Create("srv-env-b4b1bdac23ac47558165851a96899019");
+```
+or
+```c#
+  var client = await FeatureflowClientFactory.CreateAsync("srv-env-b4b1bdac23ac47558165851a96899019");
 
 ```
 #### Evaluate a feature
