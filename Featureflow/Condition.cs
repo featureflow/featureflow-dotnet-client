@@ -75,16 +75,16 @@ namespace Featureflow.Client
                     return userAttributeValue.Equals(conditionValues[0]);
 
                 case "lessThan":
-                    return Convert.ToInt64(userAttributeValue) < Convert.ToInt64(conditionValues[0]);
+                    return Convert.ToDouble(userAttributeValue) < Convert.ToDouble(conditionValues[0]);
 
                 case "greaterThan":
-                    return Convert.ToInt64(userAttributeValue) > Convert.ToInt64(conditionValues[0]);
+                    return Convert.ToDouble(userAttributeValue) > Convert.ToDouble(conditionValues[0]);
 
                 case "lessThanOrEqual":
-                    return Convert.ToInt64(userAttributeValue) <= Convert.ToInt64(conditionValues[0]);
+                    return Convert.ToDouble(userAttributeValue) <= Convert.ToDouble(conditionValues[0]);
 
                 case "greaterThanOrEqual":
-                    return Convert.ToInt64(userAttributeValue) >= Convert.ToInt64(conditionValues[0]);
+                    return Convert.ToDouble(userAttributeValue) >= Convert.ToDouble(conditionValues[0]);
 
                 case "startsWith":
                     return userAttributeValue.ToString().StartsWith((string)conditionValues[0]);
