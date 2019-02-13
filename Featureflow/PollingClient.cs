@@ -84,7 +84,6 @@ namespace Featureflow.Client
 
                 _featureControlCache.Update(newFeatures);
 
-
                 foreach (var newFeature in newFeatures)
                 {
                     FeatureUpdated?.Invoke(this, new FeatureUpdatedEventArgs(newFeature.Key));

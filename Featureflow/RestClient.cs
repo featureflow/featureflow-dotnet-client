@@ -13,7 +13,6 @@ namespace Featureflow.Client
     internal class RestClient
     {
         private readonly string _apiKey;
-        private readonly HttpClientHandler httpClientHandler = new HttpClientHandler();
         private readonly FeatureflowConfig _config;
         private readonly RestConfig _restConfig;
         private EntityTagHeaderValue _etag;
