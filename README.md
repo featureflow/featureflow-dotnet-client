@@ -1,4 +1,4 @@
-# featureflow-dotnet-client
+# featureflow-dotnet-sdk
 [![][dependency-img]][dependency-url]
 
 .NET client SDK for Featureflow compatible with .NET Framework 4.5, .NET Standard 1.3, .NET Standard 2.0.
