@@ -20,7 +20,7 @@ namespace Featureflow.Tests
 			/*FeatureflowConfig config = FeatureflowConfig.Create();
 			config.BaseUri = "http://app.featureflow.localdev";*/
 			Console.WriteLine("Starting out");
-			var client = FeatureflowClientFactory.Create("srv-env-685e066dea464f88be14effbf65cf69c"); //
+			var client = FeatureflowClientFactory.Create(Environment.GetEnvironmentVariable("FEATUREFLOW_TEST_API_KEY"));
 			Console.WriteLine("Created client");
 			User user = new User("1234");
 			user.Attributes.Add("age", new List<object> {11});
@@ -29,14 +29,32 @@ namespace Featureflow.Tests
 			Console.WriteLine(result);
 		}
 
+	    // Requires FEATUREFLOW_TEST_API_KEY (and optionally FEATUREFLOW_TEST_BASE_URL) to
+	    // point at an environment with features matching this test's expectations. No
+	    // real key is checked into source, and the test is a no-op (passes trivially)
+	    // when the env var isn't set, so `dotnet test` never hits the network by default.
+	    // Filter explicitly for this category to run it: dotnet test --filter Category=Integration
 	    [Fact]
+	    [Trait("Category", "Integration")]
 	    public void FeatureflowManualTestWithFeatureDefaults()
 	    {
-		    /*FeatureflowConfig config = FeatureflowConfig.Create();
-		    config.BaseUri = "http://app.featureflow.localdev";*/
+		    var apiKey = Environment.GetEnvironmentVariable("FEATUREFLOW_TEST_API_KEY");
+		    if (string.IsNullOrEmpty(apiKey))
+		    {
+			    Console.WriteLine("Skipping: FEATUREFLOW_TEST_API_KEY not set");
+			    return;
+		    }
+
+		    var configBuilder = new FeatureflowConfigBuilder();
+		    var baseUri = Environment.GetEnvironmentVariable("FEATUREFLOW_TEST_BASE_URL");
+		    if (!string.IsNullOrEmpty(baseUri))
+		    {
+			    configBuilder.WithBaseUri(baseUri);
+		    }
+
 		    Console.WriteLine("Creating client");
 
-		    var client = FeatureflowClientFactory.Create("srv-env-685e066dea464f88be14effbf65cf69c", new List<Feature>
+		    var client = FeatureflowClientFactory.Create(apiKey, new List<Feature>
 		    {
 			    new Feature
 			    {
@@ -53,7 +71,7 @@ namespace Featureflow.Tests
 			 	   Key = "example-feature",
 			    	FailoverVariant = "off"
 		    	}
-		    }, new FeatureflowConfig());		    
+		    }, configBuilder.Build());
 		    var user = new User("1234");
 		    user.WithAttribute("region", "sydney");
 		    user.WithAttribute("days", new List<object> {11, 1, 4, 29});

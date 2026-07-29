@@ -13,7 +13,12 @@ namespace Featureflow.Client
         internal static readonly string EventsRestPath = "/api/sdk/v1/events";
         internal static readonly string StreamFeaturesRestPath = "/api/sdk/v1/features";
 
-        public Uri BaseUri { get; internal set; } = DefaultStreamBaseUri;
+        // BaseUri is the REST host the features endpoint is polled from; the SSE stream is served by a
+        // different host (StreamBaseUri). Defaulting this to the stream host made a directly-constructed
+        // config - the form the README documents - point GetFeaturesMethod.Polling at a host that does not
+        // serve the polling endpoint. The default now matches FeatureflowConfigBuilder, so a config built
+        // either way works for both polling and streaming.
+        public Uri BaseUri { get; internal set; } = DefaultBaseUri;
 
         public Uri StreamBaseUri { get; internal set; } = DefaultStreamBaseUri;
 

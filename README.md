@@ -27,11 +27,11 @@ Install-Package Featureflow
 Get your 'Server Environment Api Key' from the environment page in featureflow and instantiate a singleton client:
 #### Instantiate the client
 ```c#
-  var client = FeatureflowClientFactory.Create("srv-env-YOUR_SERVER_ENVIRONMENT_API_KEY");
+  var client = FeatureflowClientFactory.Create("sdk-srv-env-YOUR_SERVER_ENVIRONMENT_API_KEY");
 ```
 or
 ```c#
-  var client = await FeatureflowClientFactory.CreateAsync("srv-env-YOUR_SERVER_ENVIRONMENT_API_KEY");
+  var client = await FeatureflowClientFactory.CreateAsync("sdk-srv-env-YOUR_SERVER_ENVIRONMENT_API_KEY");
 
 ```
 #### Evaluate a feature
@@ -58,8 +58,8 @@ Because the most commonly used variants for any feature are `'on'` and `'off'`, 
 
 The feature failover value is used if the feature is not found in the features cache for any reason.
 The default value is 'off'. You may define your features in code and specify a failover value.
-```
-var client = new FeatureflowClient("srv-env-YOUR_KEY", new List<Feature>
+```c#
+var client = FeatureflowClientFactory.Create("sdk-srv-env-YOUR_KEY", new List<Feature>
 		    {
 			    new Feature
 			    {
@@ -83,7 +83,7 @@ At the point in time of evaluation (e.g. on a rest call or other call) you can c
 ```c#
 var user = new User("1234");
 user.WithAttribute("region", "sydney");
-user.WithAttribute("days", new List<int> { 11, 1, 4, 29 });
+user.WithAttribute("days", new List<object> { 11, 1, 4, 29 });
 user.WithSessionAttribute("dayofweek", 5);
 var result = client.Evaluate("example-feature", user).Value();
 ```
@@ -91,8 +91,8 @@ User attributes can be of type `DateTime`, `String`, any numeric type (like `int
 
 When a list of user attributes is passed in, each rule may match any of the attribute values, additionally each attribute is stored in featureflow for subsequent lookup in rule creation.
 
-If you do not want the user saved in featureflow set '.SaveUser(false)' on the FeatureflowUser object.
- 
+Attributes set with `.WithSessionAttribute(...)` are used for the evaluation but are not stored against the user in featureflow, so use those for values you would rather not have persisted.
+
 Evaluate by passing the user into the evaluate method:
 
 ```
