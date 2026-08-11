@@ -5,9 +5,11 @@ name: Publish to NuGet
 #   1. bump <PackageVersion> in Featureflow/Featureflow.csproj
 #   2. publish a GitHub release with the matching tag, e.g. 1.1.2
 #      (this repo's tags carry no "v" prefix — 1.1.1 set the pattern)
-# The trusted-publishing policy on nuget.org (owner "featureflow") must name
-# this repo, this workflow file, and the "nuget" environment. NuGet/login
-# exchanges the workflow's OIDC token for a short-lived API key.
+# The trusted-publishing policy on nuget.org must name this repo, this
+# workflow file, and the "nuget" environment. NuGet/login exchanges the
+# workflow's OIDC token for a short-lived API key; its `user` input must be
+# the username of the policy's CREATOR (oliveroldfield), not the package
+# owner (featureflow) — nuget.org matches policies by creator.
 
 on:
   release:
@@ -48,5 +50,5 @@ jobs:
         uses: NuGet/login@v1
         id: login
         with:
-          user: featureflow
+          user: oliveroldfield
       - run: dotnet nuget push out/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ steps.login.outputs.NUGET_API_KEY }}
