@@ -16,9 +16,11 @@
     <Summary>The DotNet Client for Featureflow runtime feature management</Summary>
     <PackageTags>Features Feature Management Release Dark launch Feature Toggles</PackageTags>
     <PackageVersion>1.1.2</PackageVersion>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="FeatureflowLogger.cs" />
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
     <PackageReference Include="System.Net.Http">
