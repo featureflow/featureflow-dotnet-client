@@ -11,7 +11,7 @@ Updated SDK 1.0.2
 Polling Client
 Improved .net Compatibility Framework 4.5, .Net Standard 1.3 - 2.0.
 
-## [Unreleased]
+## [1.1.2] - 2026-08-11
 ### Security:
 Updated `Newtonsoft.Json` from 12.0.1 to 13.0.1, resolving the high severity advisory
 GHSA-5crp-9r3c-p9vr / CVE-2024-21907 (NU1903) - improper handling of deeply nested JSON, which can

@@ -1,0 +1,52 @@
+name: Publish to NuGet
+
+# Publishes via NuGet trusted publishing (OIDC — no long-lived API key stored).
+# Release flow, mirroring featureflow-python-sdk / featureflow-ruby-sdk:
+#   1. bump <PackageVersion> in Featureflow/Featureflow.csproj
+#   2. publish a GitHub release with the matching tag, e.g. 1.1.2
+#      (this repo's tags carry no "v" prefix — 1.1.1 set the pattern)
+# The trusted-publishing policy on nuget.org (owner "featureflow") must name
+# this repo, this workflow file, and the "nuget" environment. NuGet/login
+# exchanges the workflow's OIDC token for a short-lived API key.
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - run: dotnet test Featureflow.Tests/Featureflow.Tests.csproj
+
+  publish:
+    needs: test
+    runs-on: ubuntu-latest
+    environment: nuget
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: Check version matches release tag
+        run: |
+          VERSION=$(sed -n 's:.*<PackageVersion>\(.*\)</PackageVersion>.*:\1:p' Featureflow/Featureflow.csproj)
+          TAG="${GITHUB_REF_NAME#v}"
+          if [ "$VERSION" != "$TAG" ]; then
+            echo "PackageVersion $VERSION does not match release tag $GITHUB_REF_NAME" >&2
+            exit 1
+          fi
+      - run: dotnet pack Featureflow/Featureflow.csproj -c Release -o out
+      - name: NuGet login (OIDC)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: featureflow
+      - run: dotnet nuget push out/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ steps.login.outputs.NUGET_API_KEY }}
