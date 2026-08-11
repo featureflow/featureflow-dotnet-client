@@ -9,18 +9,19 @@
     <Description>Featureflow dotnet client API allows you to add runtime feature management and rollout control to your .net application. Find out more at www.featureflow.io and docs.featureflow.io</Description>
     <Owners>Featureflow</Owners>
     <Title>Featureflow .net client</Title>
-    <PackageIconUrl>https://www.featureflow.io/wp-content/uploads/2016/12/favicon-96x96.png</PackageIconUrl>
+    <PackageIcon>icon.png</PackageIcon>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://www.featureflow.io</PackageProjectUrl>
     <RepositoryUrl>https://github.com/featureflow/featureflow-dotnet-client</RepositoryUrl>
     <Summary>The DotNet Client for Featureflow runtime feature management</Summary>
     <PackageTags>Features Feature Management Release Dark launch Feature Toggles</PackageTags>
-    <PackageVersion>1.1.2</PackageVersion>
+    <PackageVersion>1.1.3</PackageVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="FeatureflowLogger.cs" />
     <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <None Include="icon.png" Pack="true" PackagePath="\" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
     <PackageReference Include="System.Net.Http">

@@ -11,6 +11,11 @@ Updated SDK 1.0.2
 Polling Client
 Improved .net Compatibility Framework 4.5, .Net Standard 1.3 - 2.0.
 
+## [1.1.3] - 2026-08-11
+### Fixed:
+The package icon is now embedded in the package (`<icon>`) instead of referencing a long-dead
+`iconUrl`, so it displays on nuget.org again.
+
 ## [1.1.2] - 2026-08-11
 ### Security:
 Updated `Newtonsoft.Json` from 12.0.1 to 13.0.1, resolving the high severity advisory
