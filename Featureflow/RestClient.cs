@@ -26,9 +26,17 @@ namespace Featureflow.Client
 
         internal HttpClient CreateHttpClient()
         {
-            var httpClient = new HttpClient();
+            var httpClient = _restConfig.HttpMessageHandler == null
+                ? new HttpClient()
+                : new HttpClient(_restConfig.HttpMessageHandler, false);
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("DotNetClient/" + _restConfig.SdkVersion);
             httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _apiKey);
+            if (_config.Application != null)
+            {
+                // Write-only telemetry naming this workload; never affects response handling.
+                httpClient.DefaultRequestHeaders.Add("X-Featureflow-Application", _config.Application);
+            }
+
             return httpClient;
         }
 

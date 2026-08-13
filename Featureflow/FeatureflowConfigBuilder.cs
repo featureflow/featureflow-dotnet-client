@@ -9,6 +9,7 @@ namespace Featureflow.Client
         private TimeSpan _connectionTimeout = FeatureflowConfig.DefaultConnectionTimeout;
         private bool _offline = false;
         private GetFeaturesMethod _method = GetFeaturesMethod.Sse;
+        private string _application;
 
         public FeatureflowConfigBuilder WithConnectionTimeout(TimeSpan connectionTimeout)
         {
@@ -52,9 +53,22 @@ namespace Featureflow.Client
             return this;
         }
 
+        /// <summary>
+        /// Names this workload (e.g. "checkout-api") so the Featureflow dashboard can attribute
+        /// SDK usage and flag evaluations to it. Sent as the X-Featureflow-Application header on
+        /// every request. A slug: lowercase [a-z0-9._-], max 64 chars - invalid values are dropped
+        /// with a warning. Falls back to the FEATUREFLOW_APPLICATION environment variable when not
+        /// set here.
+        /// </summary>
+        public FeatureflowConfigBuilder WithApplication(string application)
+        {
+            _application = application;
+            return this;
+        }
+
         public FeatureflowConfig Build()
         {
-            return new FeatureflowConfig
+            var config = new FeatureflowConfig
             {
                 BaseUri = _baseUri,
                 StreamBaseUri = _streamBaseUri,
@@ -62,6 +76,15 @@ namespace Featureflow.Client
                 Offline = _offline,
                 GetFeaturesMethod = _method,
             };
+
+            if (_application != null)
+            {
+                // Config wins over the FEATUREFLOW_APPLICATION environment variable, which
+                // FeatureflowConfig itself falls back to when nothing is set here.
+                config.Application = FeatureflowConfig.SanitiseApplication(_application);
+            }
+
+            return config;
         }
     }
 }

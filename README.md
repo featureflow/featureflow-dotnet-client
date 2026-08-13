@@ -120,6 +120,18 @@ var client = FeatureflowClientFactory.Create("sdk-srv-env-YOUR_KEY", config);
 - **`GetFeaturesMethod.Polling`** periodically re-fetches the feature set instead — use it where long-lived connections are impractical.
 - **`.WithOffline(true)`** makes no network calls at all: every evaluation returns the failover variant. Useful in unit tests and CI.
 
+### Naming your application
+
+Optionally tag this workload with an application name so the Featureflow dashboard can attribute SDK usage and flag evaluations to it (Admin → SDKs, and the "Evaluated by" panel on each feature's statistics tab):
+
+```csharp
+var config = new FeatureflowConfigBuilder()
+    .WithApplication("checkout-api")
+    .Build();
+```
+
+The name is a slug — lowercase letters, numbers, `.`, `_` and `-`, at most 64 characters. An invalid value is dropped with a warning and no tag is sent. The `FEATUREFLOW_APPLICATION` environment variable is used when the option is not set in code.
+
 ## Reacting to changes
 
 The client raises events when feature rules change:

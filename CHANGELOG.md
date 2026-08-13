@@ -2,6 +2,14 @@
 
 Featureflow Changelog
 
+## [Unreleased]
+### Added:
+Application tag: `FeatureflowConfigBuilder.WithApplication("checkout-api")` (or the
+`FEATUREFLOW_APPLICATION` environment variable) names this workload so the Featureflow dashboard
+can attribute SDK usage and flag evaluations to it. Sent as the `X-Featureflow-Application` header
+on every request. A slug - lowercase `[a-z0-9._-]`, max 64 chars; case is forgiven (lowercased),
+anything else invalid is dropped with a warning and no header is sent.
+
 ## [1.0.2] - 2019-02-09
 ### Added:
 Updated SDK 1.0.2
