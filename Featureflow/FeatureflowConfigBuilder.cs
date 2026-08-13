@@ -8,7 +8,7 @@ namespace Featureflow.Client
         private Uri _streamBaseUri = FeatureflowConfig.DefaultStreamBaseUri;
         private TimeSpan _connectionTimeout = FeatureflowConfig.DefaultConnectionTimeout;
         private bool _offline = false;
-        private GetFeaturesMethod _method = GetFeaturesMethod.Sse;
+        private GetFeaturesMethod _method = GetFeaturesMethod.Polling;
         private string _application;
 
         public FeatureflowConfigBuilder WithConnectionTimeout(TimeSpan connectionTimeout)

@@ -109,15 +109,15 @@ Build a `FeatureflowConfig` for anything non-default:
 
 ```csharp
 var config = new FeatureflowConfigBuilder()
-    .WithGetFeaturesMethod(GetFeaturesMethod.Polling) // default: GetFeaturesMethod.Sse (streaming)
     .WithConnectionTimeout(TimeSpan.FromSeconds(10))  // default: 30s
     .Build();
 
 var client = FeatureflowClientFactory.Create("sdk-srv-env-YOUR_KEY", config);
 ```
 
-- **`GetFeaturesMethod.Sse`** (default) holds a streaming connection open so rule changes apply in near real time.
-- **`GetFeaturesMethod.Polling`** periodically re-fetches the feature set instead — use it where long-lived connections are impractical.
+The client polls for rule changes every 30 seconds, using ETags so unchanged feature sets cost
+almost nothing.
+
 - **`.WithOffline(true)`** makes no network calls at all: every evaluation returns the failover variant. Useful in unit tests and CI.
 
 ### Naming your application

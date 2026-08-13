@@ -2,6 +2,14 @@
 
 Featureflow Changelog
 
+## [1.2.1] - 2026-08-13
+### Changed:
+The default `GetFeaturesMethod` is now `Polling` (30-second interval with ETag caching), matching
+every other Featureflow SDK. The Featureflow service does not currently serve the SSE stream, so
+the previous `Sse` default left a newly created client waiting out its connection timeout and
+starting with an empty feature set. `GetFeaturesMethod.Sse` remains available for API
+compatibility.
+
 ## [1.2.0] - 2026-08-13
 ### Added:
 Application tag: `FeatureflowConfigBuilder.WithApplication("checkout-api")` (or the

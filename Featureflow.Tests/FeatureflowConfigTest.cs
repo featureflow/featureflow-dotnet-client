@@ -21,11 +21,19 @@ namespace Featureflow.Tests
         }
 
         [Fact]
-        public void DefaultConfigStreamsFromTheStreamHost()
+        public void DefaultConfigUsesPolling()
         {
             var config = new FeatureflowConfig();
 
-            Assert.Equal(GetFeaturesMethod.Sse, config.GetFeaturesMethod);
+            Assert.Equal(GetFeaturesMethod.Polling, config.GetFeaturesMethod);
+            Assert.Equal(ExpectedPollingUri, new Uri(config.BaseUri, FeatureflowConfig.FeaturesRestPath));
+        }
+
+        [Fact]
+        public void SseConfigStreamsFromTheStreamHost()
+        {
+            var config = new FeatureflowConfig { GetFeaturesMethod = GetFeaturesMethod.Sse };
+
             Assert.Equal(ExpectedStreamUri, new Uri(config.StreamBaseUri, FeatureflowConfig.StreamFeaturesRestPath));
         }
 

@@ -19,11 +19,11 @@ namespace Featureflow.Client
         internal static readonly string EventsRestPath = "/api/sdk/v1/events";
         internal static readonly string StreamFeaturesRestPath = "/api/sdk/v1/features";
 
-        // BaseUri is the REST host the features endpoint is polled from; the SSE stream is served by a
-        // different host (StreamBaseUri). Defaulting this to the stream host made a directly-constructed
-        // config - the form the README documents - point GetFeaturesMethod.Polling at a host that does not
-        // serve the polling endpoint. The default now matches FeatureflowConfigBuilder, so a config built
-        // either way works for both polling and streaming.
+        // BaseUri is the REST host the features endpoint is polled from; StreamBaseUri is the
+        // (currently unserved) SSE host. Defaulting this to the stream host made a directly-constructed
+        // config - the form the README documents - point GetFeaturesMethod.Polling at a host that does
+        // not serve the polling endpoint. The default now matches FeatureflowConfigBuilder, so a config
+        // built either way polls the right host.
         public Uri BaseUri { get; internal set; } = DefaultBaseUri;
 
         public Uri StreamBaseUri { get; internal set; } = DefaultStreamBaseUri;
@@ -34,7 +34,9 @@ namespace Featureflow.Client
 
         public bool Offline { get; internal set; }
 
-        public GetFeaturesMethod GetFeaturesMethod { get; internal set; } = GetFeaturesMethod.Sse;
+        // Polling, as in every other Featureflow SDK. The Featureflow service does not currently
+        // serve the SSE stream; GetFeaturesMethod.Sse remains for API compatibility only.
+        public GetFeaturesMethod GetFeaturesMethod { get; internal set; } = GetFeaturesMethod.Polling;
 
         /// <summary>
         /// Sanitised application tag sent as X-Featureflow-Application on every request so the
