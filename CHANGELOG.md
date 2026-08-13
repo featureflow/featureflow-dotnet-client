@@ -2,7 +2,7 @@
 
 Featureflow Changelog
 
-## [Unreleased]
+## [1.2.0] - 2026-08-13
 ### Added:
 Application tag: `FeatureflowConfigBuilder.WithApplication("checkout-api")` (or the
 `FEATUREFLOW_APPLICATION` environment variable) names this workload so the Featureflow dashboard
